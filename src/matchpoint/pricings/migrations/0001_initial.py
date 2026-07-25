@@ -5,26 +5,38 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('courts', '0005_alter_court_name_alter_court_sport_type_and_more'),
+        ("courts", "0005_alter_court_name_alter_court_sport_type_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Prices',
+            name="Prices",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('weekday', models.CharField()),
-                ('time_start', models.TimeField()),
-                ('time_end', models.TimeField()),
-                ('price_per_30_minutes', models.FloatField()),
-                ('court', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='courts.court')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("weekday", models.CharField()),
+                ("time_start", models.TimeField()),
+                ("time_end", models.TimeField()),
+                ("price_per_30_minutes", models.FloatField()),
+                (
+                    "court",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="courts.court"
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('court', 'weekday', 'time_start', 'time_end')},
+                "unique_together": {("court", "weekday", "time_start", "time_end")},
             },
         ),
     ]

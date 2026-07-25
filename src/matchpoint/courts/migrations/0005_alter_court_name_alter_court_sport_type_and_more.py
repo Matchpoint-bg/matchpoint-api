@@ -4,25 +4,26 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('courts', '0001_squashed_0004_alter_court_club_id'),
+        ("courts", "0001_squashed_0004_alter_court_club_id"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='court',
-            name='name',
+            model_name="court",
+            name="name",
             field=models.CharField(max_length=50),
         ),
         migrations.AlterField(
-            model_name='court',
-            name='sport_type',
-            field=models.CharField(choices=[('Tennis', 'Tennis')]),
+            model_name="court",
+            name="sport_type",
+            field=models.CharField(choices=[("Tennis", "Tennis")]),
         ),
         migrations.AlterField(
-            model_name='court',
-            name='surface_type',
-            field=models.CharField(choices=[('Grass', 'Grass'), ('Clay', 'Clay'), ('Hard', 'Hard')]),
+            model_name="court",
+            name="surface_type",
+            field=models.CharField(
+                choices=[("Grass", "Grass"), ("Clay", "Clay"), ("Hard", "Hard")]
+            ),
         ),
     ]

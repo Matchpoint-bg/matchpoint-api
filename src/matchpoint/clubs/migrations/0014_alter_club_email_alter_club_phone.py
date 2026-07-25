@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('clubs', '0001_squashed_0013_alter_openinghours_closing_hour_and_more'),
+        ("clubs", "0001_squashed_0013_alter_openinghours_closing_hour_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='club',
-            name='email',
+            model_name="club",
+            name="email",
             field=models.EmailField(max_length=254),
         ),
         migrations.AlterField(
-            model_name='club',
-            name='phone',
+            model_name="club",
+            name="phone",
             field=models.CharField(max_length=12),
         ),
     ]
