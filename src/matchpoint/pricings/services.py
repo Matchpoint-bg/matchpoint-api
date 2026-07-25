@@ -4,8 +4,8 @@ import datetime
 
 
 class PricingService:
+    @staticmethod
     def get_price_for_30_minutes(
-        self,
         weekday: str,
         court: Court,
         time_start: datetime.time,
@@ -22,8 +22,9 @@ class PricingService:
         else:
             raise Exception("No price found for this data")
 
+    @staticmethod
     def calculate_amount_for_period(
-        self, time_start: datetime.time, time_end: datetime.time, amount: float
+        time_start: datetime.time, time_end: datetime.time, amount: float
     ) -> float:
         delta: datetime.timedelta = datetime.datetime.combine(
             datetime.date.today(), time_end

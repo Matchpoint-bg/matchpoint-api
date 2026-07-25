@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from courts.models import Court
 from clubs.models import Club
 from openinghours.models import OpeningHours
+from pricings.models import Prices
 from reservations.models import Reservation
 from django.urls import reverse
 from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND
@@ -79,13 +80,32 @@ class TestCourtViewset(APITestCase):
             "Saturday",
             "Sunday",
         ):
-            opening_hours = self.opening_hours = OpeningHours.objects.create(
+            self.opening_hours = OpeningHours.objects.create(
                 club=self.club,
                 weekday=day,
                 opening_hour=open,
                 closing_hour=close,
             )
-        opening_hours.refresh_from_db()
+
+            # Create pricings for all the days of the week
+            for x in range(open.hour, close.hour):
+                Prices.objects.create(
+                    court=self.court,
+                    weekday=day,
+                    time_start=datetime.time(hour=x),
+                    time_end=datetime.time(hour=open.hour, minute=30),
+                    price_per_30_minutes=8,
+                )
+                Prices.objects.create(
+                    court=self.court,
+                    weekday=day,
+                    time_start=datetime.time(hour=x, minute=31),
+                    time_end=datetime.time(hour=open.hour + 1),
+                    price_per_30_minutes=8,
+                )
+
+        # Authenticate
+
         self.client.force_authenticate(self.user)
         response = self.client.get(
             reverse("courts-schedule", kwargs={"pk": self.court.pk}),
@@ -108,6 +128,7 @@ class TestCourtViewset(APITestCase):
             ).strftime("%Y-%m-%dT%H:%M:%SZ"),
         )
         self.assertTrue(response.data[0]["available"])
+        self.assertEqual(response.data[0]["price"], 8)
 
         # Check that second slot is not available
         self.assertEqual(
@@ -125,3 +146,4 @@ class TestCourtViewset(APITestCase):
             ).strftime("%Y-%m-%dT%H:%M:%SZ"),
         )
         self.assertFalse(response.data[1]["available"])
+        self.assertEqual(response.data[1]["price"], 0)

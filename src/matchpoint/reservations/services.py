@@ -1,6 +1,8 @@
 from typing import Tuple, List
 from clubs.services import ClubService
+from common.helpers import get_weekday_name
 from courts.models import Court
+from pricings.services import PricingService
 from users.models import CustomUser
 from .models import Reservation
 from exceptionalunavailability.models import ExceptionalUnavailability
@@ -68,10 +70,24 @@ class ReservationService:
                     "available": ReservationService._is_slot_available(
                         slot, next_slot, unavailable_times
                     ),
+                    "price": ReservationService._get_price_for_slot(
+                        court, slot, next_slot
+                    ),
                 }
             )
             slot = next_slot
         return slots
+
+    @staticmethod
+    def _get_price_for_slot(
+        court: Court, slot_start: datetime.datetime, slot_end: datetime.datetime
+    ):
+        try:
+            return PricingService.get_price_for_30_minutes(
+                get_weekday_name(slot_start), court, slot_start.time(), slot_end.time()
+            )
+        except Exception:
+            return 0
 
     @staticmethod
     def validate(court: Court, start: datetime.datetime, end: datetime.datetime):

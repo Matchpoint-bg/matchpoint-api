@@ -12,3 +12,4 @@ class CourtOpeningSerializer(serializers.Serializer):
     start = serializers.DateTimeField()
     end = serializers.DateTimeField()
     available = serializers.BooleanField()
+    price = serializers.FloatField()
