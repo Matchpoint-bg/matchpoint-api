@@ -1,3 +1,4 @@
+from common.exceptions import NoPricingFound
 from courts.models import Court
 from .models import Prices
 import datetime
@@ -20,7 +21,7 @@ class PricingService:
         if price_per_30_min is not None:
             return price_per_30_min.price_per_30_minutes
         else:
-            raise Exception("No price found for this data")
+            raise NoPricingFound
 
     @staticmethod
     def calculate_amount_for_period(

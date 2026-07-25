@@ -1,4 +1,6 @@
 from rest_framework import permissions, viewsets
+from common.exceptions import IncorrectTimeException
+from common.helpers import is_30_minutes_increment
 from reservations.models import Reservation
 from reservations.serializers import ReservationsSerializer
 from rest_framework.request import Request
@@ -27,6 +29,10 @@ class ReservationViewset(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         court = serializer.validated_data["court"]
+        if not is_30_minutes_increment(
+            serializer.validated_data["start_datetime"]
+        ) or not is_30_minutes_increment(serializer.validated_data["end_datetime"]):
+            raise IncorrectTimeException
         reservation = ReservationService.create(
             court,
             self.request.user,
