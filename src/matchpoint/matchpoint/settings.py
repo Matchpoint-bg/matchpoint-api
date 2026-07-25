@@ -38,6 +38,7 @@ PROJECT_APPS = [
     "reservations",
     "exceptionalunavailability",
     "openinghours",
+    "pricings",
 ]
 
 INSTALLED_APPS = [

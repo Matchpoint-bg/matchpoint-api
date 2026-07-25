@@ -1,5 +1,7 @@
 import datetime
 from django.utils import timezone
+
+from common.helpers import get_weekday_name
 from .models import Club
 from openinghours.models import OpeningHours
 from typing import Tuple
@@ -10,17 +12,8 @@ class ClubService:
     def get_opening_hours(
         club: Club, date: datetime.datetime
     ) -> Tuple[datetime.datetime, datetime.datetime]:
-        days = [
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-            "Sunday",
-        ]
         club_openings = OpeningHours.objects.filter(
-            club=club, weekday=days[date.weekday()]
+            club=club, weekday=get_weekday_name(date)
         ).first()
         if not club_openings:
             raise Exception("No opening hours for this club")
