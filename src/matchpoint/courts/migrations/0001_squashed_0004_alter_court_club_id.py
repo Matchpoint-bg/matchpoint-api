@@ -5,27 +5,59 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
-    replaces = [('courts', '0001_initial'), ('courts', '0002_court_court_type'), ('courts', '0003_rename_is_covered_court_is_indoor_and_more'), ('courts', '0004_alter_court_club_id')]
+    replaces = [
+        ("courts", "0001_initial"),
+        ("courts", "0002_court_court_type"),
+        ("courts", "0003_rename_is_covered_court_is_indoor_and_more"),
+        ("courts", "0004_alter_court_club_id"),
+    ]
 
     initial = True
 
     dependencies = [
-        ('clubs', '0001_initial'),
-        ('clubs', '0004_openinghours_closing_hour_openinghours_opening_hour'),
+        ("clubs", "0001_initial"),
+        ("clubs", "0004_openinghours_closing_hour_openinghours_opening_hour"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Court',
+            name="Court",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('is_indoor', models.BooleanField()),
-                ('is_lit', models.BooleanField()),
-                ('club_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='courts', to='clubs.club')),
-                ('surface_type', models.CharField(choices=[('Grass', 'Grass'), ('Clay', 'Clay'), ('Hard', 'Hard')], default='Grass')),
-                ('name', models.CharField(default='Tennis 1', max_length=50)),
-                ('sport_type', models.CharField(choices=[('Tennis', 'Tennis')], default='Tennis')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("is_indoor", models.BooleanField()),
+                ("is_lit", models.BooleanField()),
+                (
+                    "club_id",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="courts",
+                        to="clubs.club",
+                    ),
+                ),
+                (
+                    "surface_type",
+                    models.CharField(
+                        choices=[
+                            ("Grass", "Grass"),
+                            ("Clay", "Clay"),
+                            ("Hard", "Hard"),
+                        ],
+                        default="Grass",
+                    ),
+                ),
+                ("name", models.CharField(default="Tennis 1", max_length=50)),
+                (
+                    "sport_type",
+                    models.CharField(choices=[("Tennis", "Tennis")], default="Tennis"),
+                ),
             ],
         ),
     ]
