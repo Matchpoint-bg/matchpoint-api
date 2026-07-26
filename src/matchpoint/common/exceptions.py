@@ -23,3 +23,9 @@ class NoPricingFound(APIException):
     status_code = 400
     default_detail = "No prices were found for this court at this time"
     default_code = "no_pricing_found"
+
+
+class CourtBusyException(APIException):
+    status_code = 400
+    default_detail = "Reservation impossible, the court is busy during this time"
+    default_code = "court_busy"

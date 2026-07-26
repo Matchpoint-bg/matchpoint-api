@@ -82,6 +82,34 @@ class TestReservations(APITestCase):
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         self.assertEqual(reservation.user, self.user)
 
+    def test_create_back_to_back_reservation_creates_reservations(self):
+        self.client.force_authenticate(self.user)
+        Reservation.objects.create(
+            court=self.court,
+            user=self.user,
+            start_datetime=timezone.make_aware(
+                datetime.combine(datetime.today(), time(hour=9))
+            ),
+            end_datetime=timezone.make_aware(
+                datetime.combine(datetime.today(), time(hour=10))
+            ),
+        )
+        resp = self.client.post(
+            reverse("reservation-list"),
+            data={
+                "court": self.court.pk,
+                "user": self.user.pk,
+                "start_datetime": timezone.make_aware(
+                    datetime.combine(datetime.today(), time(hour=10))
+                ),
+                "end_datetime": timezone.make_aware(
+                    datetime.combine(datetime.today(), time(hour=11))
+                ),
+            },
+            format="json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
     def test_create_reservation_with_incorrect_hour_raises(self):
         self.client.force_authenticate(self.user)
         resp = self.client.post(
@@ -119,3 +147,35 @@ class TestReservations(APITestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Reservation.objects.count(), 0)
+
+    def test_create_reservation_while_busy_raises(self):
+        self.client.force_authenticate(self.user)
+        Reservation.objects.create(
+            court=self.court,
+            user=self.user,
+            start_datetime=timezone.make_aware(
+                datetime.combine(datetime.today(), time(hour=9))
+            ),
+            end_datetime=timezone.make_aware(
+                datetime.combine(datetime.today(), time(hour=10))
+            ),
+        )
+        resp = self.client.post(
+            reverse("reservation-list"),
+            data={
+                "court": self.court.pk,
+                "user": self.user.pk,
+                "start_datetime": timezone.make_aware(
+                    datetime.combine(datetime.today(), time(hour=9, minute=30))
+                ),
+                "end_datetime": timezone.make_aware(
+                    datetime.combine(datetime.today(), time(hour=11))
+                ),
+            },
+            format="json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            resp.data["message"],
+            "Reservation impossible, the court is busy during this time",
+        )

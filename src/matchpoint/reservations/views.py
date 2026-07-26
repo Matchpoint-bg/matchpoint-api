@@ -1,6 +1,6 @@
 from rest_framework import permissions, viewsets
 from rest_framework.status import HTTP_201_CREATED
-from common.exceptions import IncorrectTimeException
+from common.exceptions import CourtBusyException, IncorrectTimeException
 from common.helpers import is_30_minutes_increment
 from reservations.models import Reservation
 from reservations.serializers import ReservationsSerializer
@@ -34,6 +34,12 @@ class ReservationViewset(viewsets.ModelViewSet):
             serializer.validated_data["start_datetime"]
         ) or not is_30_minutes_increment(serializer.validated_data["end_datetime"]):
             raise IncorrectTimeException
+        if not ReservationService.is_available(
+            court,
+            serializer.validated_data["start_datetime"],
+            serializer.validated_data["end_datetime"],
+        ):
+            raise CourtBusyException
         self.perform_create(serializer)
         return Response(data=serializer.data, status=HTTP_201_CREATED)
 

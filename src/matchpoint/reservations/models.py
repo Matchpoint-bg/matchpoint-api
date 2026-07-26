@@ -8,3 +8,4 @@ class Reservation(models.Model):
     user = models.ForeignKey(to=CustomUser, on_delete=models.CASCADE)
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
+    reservation_amt = models.FloatField(blank=True, null=True)
