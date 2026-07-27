@@ -1,4 +1,5 @@
-from common.exceptions import NoPricingFound
+from common.exceptions import IncorrectTimeException, NoPricingFound
+from common.helpers import is_30_minutes, is_30_minutes_increment, is_minimum_30_minutes
 from courts.models import Court
 from .models import Prices
 import datetime
@@ -12,6 +13,8 @@ class PricingService:
         time_start: datetime.time,
         time_end: datetime.time,
     ) -> float:
+        if not is_30_minutes(time_start, time_end):
+            raise IncorrectTimeException
         price_per_30_min: Prices | None = Prices.objects.filter(
             court=court,
             weekday=weekday,

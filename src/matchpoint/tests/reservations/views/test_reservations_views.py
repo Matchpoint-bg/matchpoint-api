@@ -12,6 +12,7 @@ from datetime import datetime, time
 
 from reservations.models import Reservation
 from reservations.serializers import ReservationsSerializer
+from reservations.services import ReservationService
 
 UserModel = get_user_model()
 
@@ -49,14 +50,14 @@ class TestReservations(APITestCase):
                     court=self.court,
                     weekday=day,
                     time_start=time(hour=x),
-                    time_end=time(hour=open.hour, minute=30),
+                    time_end=time(hour=x, minute=30),
                     price_per_30_minutes=8,
                 )
                 Prices.objects.create(
                     court=self.court,
                     weekday=day,
-                    time_start=time(hour=x, minute=31),
-                    time_end=time(hour=open.hour + 1),
+                    time_start=time(hour=x, minute=30),
+                    time_end=time(hour=x + 1),
                     price_per_30_minutes=8,
                 )
 
@@ -179,3 +180,15 @@ class TestReservations(APITestCase):
             resp.data["message"],
             "Reservation impossible, the court is busy during this time",
         )
+
+    def test_get_total_price_for_reservation_returns_total_price(self):
+        res = ReservationService.get_total_price_for_reservation(
+            self.court,
+            timezone.make_aware(
+                datetime.combine(datetime.today(), time(hour=9, minute=30))
+            ),
+            timezone.make_aware(
+                datetime.combine(datetime.today(), time(hour=10, minute=30))
+            ),
+        )
+        self.assertEqual(res, 16.0)
