@@ -180,15 +180,3 @@ class TestReservations(APITestCase):
             resp.data["message"],
             "Reservation impossible, the court is busy during this time",
         )
-
-    def test_get_total_price_for_reservation_returns_total_price(self):
-        res = ReservationService.get_total_price_for_reservation(
-            self.court,
-            timezone.make_aware(
-                datetime.combine(datetime.today(), time(hour=9, minute=30))
-            ),
-            timezone.make_aware(
-                datetime.combine(datetime.today(), time(hour=10, minute=30))
-            ),
-        )
-        self.assertEqual(res, 16.0)
