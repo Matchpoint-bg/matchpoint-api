@@ -107,9 +107,8 @@ class TestCourtViewset(APITestCase):
         # Authenticate
 
         self.client.force_authenticate(self.user)
-        response = self.client.get(
-            reverse("courts-schedule", kwargs={"pk": self.court.pk}),
-        )
+        url = reverse("courts-court-availabilities", kwargs={"pk": self.court.pk})
+        response = self.client.get(url, {"date": datetime.datetime.today().date()})
         self.assertEqual(response.status_code, HTTP_200_OK)
 
         # Check that 1st slot is available
