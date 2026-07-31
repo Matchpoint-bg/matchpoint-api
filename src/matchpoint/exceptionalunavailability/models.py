@@ -1,5 +1,6 @@
 from django.db import models
 from clubs.models import Club
+from common.validators import Is30MinutesIncrement
 from courts.models import Court
 
 
@@ -14,5 +15,5 @@ class ExceptionalUnavailability(models.Model):
         blank=True,
         related_name="exceptional_unavailability",
     )
-    start_datetime = models.DateTimeField()
-    end_datetime = models.DateTimeField()
+    start_datetime = models.DateTimeField(validators=[Is30MinutesIncrement()])
+    end_datetime = models.DateTimeField(validators=[Is30MinutesIncrement()])

@@ -1,3 +1,5 @@
+from common.exceptions import IncorrectTimeException, NoPricingFound
+from common.helpers import is_30_minutes
 from courts.models import Court
 from .models import Prices
 import datetime
@@ -11,6 +13,8 @@ class PricingService:
         time_start: datetime.time,
         time_end: datetime.time,
     ) -> float:
+        if not is_30_minutes(time_start, time_end):
+            raise IncorrectTimeException
         price_per_30_min: Prices | None = Prices.objects.filter(
             court=court,
             weekday=weekday,
@@ -20,7 +24,7 @@ class PricingService:
         if price_per_30_min is not None:
             return price_per_30_min.price_per_30_minutes
         else:
-            raise Exception("No price found for this data")
+            raise NoPricingFound
 
     @staticmethod
     def calculate_amount_for_period(
