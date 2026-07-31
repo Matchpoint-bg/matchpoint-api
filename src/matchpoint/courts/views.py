@@ -8,7 +8,11 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from clubs.permissions import IsClubEmployeeOrAdmin
 from common.serializers import ErrorSerializer
-from courts.serializers import CourtOpeningSerializer, CourtSerializer
+from courts.serializers import (
+    AvailableCourtQuerySerializer,
+    CourtOpeningSerializer,
+    CourtSerializer,
+)
 from .models import Court
 from reservations.services import ReservationService
 
@@ -79,4 +83,27 @@ class CourtViewSet(
             court=court, date=datetime.datetime.now()
         )
         serializer = CourtOpeningSerializer(availabilities, many=True)
+        return Response(data=serializer.data)
+
+    @extend_schema(
+        summary="Retrieve the court's availabilities for a given date",
+        parameters=[AvailableCourtQuerySerializer],
+        responses={200: CourtOpeningSerializer(many=True)},
+    )
+    @action(
+        methods=["get"],
+        detail=True,
+        url_path="availabilities",
+        url_name="court-availabilities",
+    )
+    def get_court_availabilities(self, request: Request, pk=None) -> Response:
+        query_serializer = AvailableCourtQuerySerializer(data=request.query_params)
+        query_serializer.is_valid(raise_exception=True)
+        date = query_serializer.validated_data["date"]
+        court = Court.objects.get(pk=pk)
+        if pk is not None:
+            slots = ReservationService.get_availability(court=court, date=date)
+            serializer = CourtOpeningSerializer(slots, many=True)
+        else:
+            return Response()
         return Response(data=serializer.data)

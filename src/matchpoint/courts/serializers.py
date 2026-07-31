@@ -13,3 +13,9 @@ class CourtOpeningSerializer(serializers.Serializer):
     end = serializers.DateTimeField()
     available = serializers.BooleanField()
     price = serializers.FloatField()
+
+
+class AvailableCourtQuerySerializer(serializers.Serializer):
+    date = serializers.DateField(
+        help_text="Date for which the availability should be returned (format YYYY-MM-DD)"
+    )
