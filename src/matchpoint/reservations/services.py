@@ -1,13 +1,13 @@
 from typing import Tuple, List
 from clubs.services import ClubService
-from common.helpers import get_weekday_name
+from common.exceptions import CourtBusyException, IncorrectTimeException
+from common.helpers import get_weekday_name, is_minimum_30_minutes
 from courts.models import Court
 from pricings.services import PricingService
 from users.models import CustomUser
 from .models import Reservation
 from exceptionalunavailability.models import ExceptionalUnavailability
 from django.db import transaction
-from rest_framework.exceptions import ValidationError
 import datetime
 from django.db.models import Q
 
@@ -90,11 +90,36 @@ class ReservationService:
             return 0
 
     @staticmethod
+    def get_total_price_for_reservation(
+        court: Court,
+        reservation_start: datetime.datetime,
+        reservation_end: datetime.datetime,
+    ):
+        slots = int((reservation_end - reservation_start).total_seconds() / (30 * 60))
+        total_price = 0
+        for slot in range(slots):
+            time = (30 * 60) * slot
+            price = PricingService.get_price_for_30_minutes(
+                weekday=get_weekday_name(reservation_start),
+                court=court,
+                time_start=(
+                    reservation_start + datetime.timedelta(seconds=time)
+                ).time(),
+                time_end=(
+                    reservation_start
+                    + datetime.timedelta(seconds=time)
+                    + datetime.timedelta(minutes=30)
+                ).time(),
+            )
+            total_price += price
+        return total_price
+
+    @staticmethod
     def validate(court: Court, start: datetime.datetime, end: datetime.datetime):
-        if not start < end or (end - start < datetime.timedelta(minutes=30)):
-            raise ValidationError("Incorrect dates")
+        if not start < end or is_minimum_30_minutes(start, end):
+            raise IncorrectTimeException
         if not ReservationService.is_available(court, start, end):
-            raise ValidationError("Court is not available")
+            raise CourtBusyException
 
     @staticmethod
     @transaction.atomic

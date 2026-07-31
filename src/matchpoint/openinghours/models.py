@@ -1,5 +1,6 @@
 from django.db import models
 from clubs.models import Club
+from common.validators import Is30MinutesIncrement
 
 
 class OpeningHours(models.Model):
@@ -16,5 +17,5 @@ class OpeningHours(models.Model):
         to=Club, on_delete=models.CASCADE, related_name="opening_hour"
     )
     weekday = models.CharField(choices=WeekdayChoices.choices)
-    opening_hour = models.TimeField()
-    closing_hour = models.TimeField()
+    opening_hour = models.TimeField(validators=[Is30MinutesIncrement()])
+    closing_hour = models.TimeField(validators=[Is30MinutesIncrement()])
