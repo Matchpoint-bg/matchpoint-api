@@ -72,20 +72,6 @@ class CourtViewSet(
         return []
 
     @extend_schema(
-        summary="Retrieve the court's schedule",
-        description="Retrieve the schedule of a court which PK is in the URL",
-        responses={200: CourtOpeningSerializer, 404: ErrorSerializer},
-    )
-    @action(methods=["get"], detail=True, url_name="schedule", url_path="schedule")
-    def get_available_times(self, request: Request, *args, **kwargs) -> Response:
-        court = self.get_object()
-        availabilities = ReservationService.get_availability(
-            court=court, date=datetime.datetime.now()
-        )
-        serializer = CourtOpeningSerializer(availabilities, many=True)
-        return Response(data=serializer.data)
-
-    @extend_schema(
         summary="Retrieve the court's availabilities for a given date",
         parameters=[AvailableCourtQuerySerializer],
         responses={200: CourtOpeningSerializer(many=True)},
