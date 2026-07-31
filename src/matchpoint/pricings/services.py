@@ -1,5 +1,5 @@
 from common.exceptions import IncorrectTimeException, NoPricingFound
-from common.helpers import is_30_minutes, is_30_minutes_increment, is_minimum_30_minutes
+from common.helpers import is_30_minutes
 from courts.models import Court
 from .models import Prices
 import datetime

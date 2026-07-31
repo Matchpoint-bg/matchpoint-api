@@ -4,15 +4,12 @@ from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from django.contrib.auth import get_user_model
 from clubs.models import Club
-from common.exceptions import IncorrectTimeException
 from courts.models import Court
 from openinghours.models import OpeningHours
 from pricings.models import Prices
 from datetime import datetime, time
 
 from reservations.models import Reservation
-from reservations.serializers import ReservationsSerializer
-from reservations.services import ReservationService
 
 UserModel = get_user_model()
 

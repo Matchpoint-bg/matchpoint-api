@@ -3,13 +3,11 @@ from clubs.services import ClubService
 from common.exceptions import CourtBusyException, IncorrectTimeException
 from common.helpers import get_weekday_name, is_minimum_30_minutes
 from courts.models import Court
-from pricings.models import Prices
 from pricings.services import PricingService
 from users.models import CustomUser
 from .models import Reservation
 from exceptionalunavailability.models import ExceptionalUnavailability
 from django.db import transaction
-from rest_framework.exceptions import ValidationError
 import datetime
 from django.db.models import Q
 
