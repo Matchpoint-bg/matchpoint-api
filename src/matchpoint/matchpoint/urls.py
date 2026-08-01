@@ -26,6 +26,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from users.views import GoogleLogin, GoogleLoginCallback
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -34,6 +35,12 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/v1/auth/", include("dj_rest_auth.urls")),
     path("api/v1/auth/registration", include("dj_rest_auth.registration.urls")),
+    path("api/v1/auth/google/", GoogleLogin.as_view(), name="google_login"),
+    path(
+        "api/v1/auth/google/callback/",
+        GoogleLoginCallback.as_view(),
+        name="google_login_callback",
+    ),
     path("api/", include("clubs.urls")),
     path("api/", include("reservations.urls")),
     path("api/", include("profiles.urls")),
