@@ -50,7 +50,7 @@ class UserRegisterSerializer(RegisterSerializer):
 
         return user
 
-    def get_fields(self) -> dict[str, Field]:
+    def get_fields(self) -> dict:
         fields = super().get_fields()
         fields.pop("username", None)
         return fields

@@ -5,20 +5,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('exceptionalunavailability', '0001_initial'),
+        ("exceptionalunavailability", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='exceptionalunavailability',
-            name='end_datetime',
-            field=models.DateTimeField(validators=[common.validators.Is30MinutesIncrement()]),
+            model_name="exceptionalunavailability",
+            name="end_datetime",
+            field=models.DateTimeField(
+                validators=[common.validators.Is30MinutesIncrement()]
+            ),
         ),
         migrations.AlterField(
-            model_name='exceptionalunavailability',
-            name='start_datetime',
-            field=models.DateTimeField(validators=[common.validators.Is30MinutesIncrement()]),
+            model_name="exceptionalunavailability",
+            name="start_datetime",
+            field=models.DateTimeField(
+                validators=[common.validators.Is30MinutesIncrement()]
+            ),
         ),
     ]

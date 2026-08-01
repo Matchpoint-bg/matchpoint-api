@@ -5,20 +5,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('reservations', '0004_reservation_reservation_amt'),
+        ("reservations", "0004_reservation_reservation_amt"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='reservation',
-            name='end_datetime',
-            field=models.DateTimeField(validators=[common.validators.Is30MinutesIncrement()]),
+            model_name="reservation",
+            name="end_datetime",
+            field=models.DateTimeField(
+                validators=[common.validators.Is30MinutesIncrement()]
+            ),
         ),
         migrations.AlterField(
-            model_name='reservation',
-            name='start_datetime',
-            field=models.DateTimeField(validators=[common.validators.Is30MinutesIncrement()]),
+            model_name="reservation",
+            name="start_datetime",
+            field=models.DateTimeField(
+                validators=[common.validators.Is30MinutesIncrement()]
+            ),
         ),
     ]
