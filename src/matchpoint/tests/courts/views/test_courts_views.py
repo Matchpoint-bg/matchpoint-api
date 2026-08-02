@@ -6,9 +6,15 @@ from courts.models import Court
 from clubs.models import Club
 from openinghours.models import OpeningHours
 from pricings.models import Prices
+from pricings.serializers import CourtsPricesSerializer
 from reservations.models import Reservation
 from django.urls import reverse
-from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND
+from rest_framework.status import (
+    HTTP_200_OK,
+    HTTP_201_CREATED,
+    HTTP_403_FORBIDDEN,
+    HTTP_404_NOT_FOUND,
+)
 import datetime
 
 UserModel = get_user_model()
@@ -16,61 +22,9 @@ tz = timezone.get_current_timezone()
 
 
 class TestCourtViewset(APITestCase):
-    def setUp(self) -> None:
-        self.user = UserModel.objects.create_user(
-            email="<EMAIL>", password="<PASSWORD>"
-        )
-        self.club = Club.objects.create(name="Test")
-        self.court = Court.objects.create(
-            name="test", club_id=self.club, is_indoor=False, is_lit=False
-        )
-        self.client = APIClient()
-
-    def test_retrieve_court_retrieves_court(self):
-        self.client.force_authenticate(self.user)
-        response = self.client.get(
-            reverse("courts-detail", kwargs={"pk": self.court.pk}),
-        )
-        self.assertEqual(response.data, CourtSerializer(self.court).data)
-        self.assertEqual(response.data["club_id"], self.club.pk)
-
-    def test_retrieve_not_existing_court_returns_error(self):
-        self.client.force_authenticate(self.user)
-        response = self.client.get(
-            reverse("courts-detail", kwargs={"pk": "2"}),
-        )
-        self.assertEqual(response.status_code, HTTP_404_NOT_FOUND)
-        self.assertEqual(
-            response.data,
-            {"status": "error", "message": "No Court matches the given query."},
-        )
-
-    def test_retrieve_court_schedule_returns_schedule(self):
+    def create_schedule(self):
         open = datetime.time(hour=8, minute=0)
         close = datetime.time(hour=17, minute=0)
-
-        # Create a reservation object for the 2nd slot of the day
-
-        reservation_start: datetime.datetime = timezone.make_aware(
-            datetime.datetime.combine(timezone.now().date(), open)
-            + datetime.timedelta(minutes=30),
-            timezone=tz,
-        )
-        reservation_end: datetime.datetime = timezone.make_aware(
-            datetime.datetime.combine(timezone.now().date(), open)
-            + datetime.timedelta(hours=1, minutes=30),
-            timezone=tz,
-        )
-
-        Reservation.objects.create(
-            court=self.court,
-            user_id=self.user.pk,
-            start_datetime=reservation_start,
-            end_datetime=reservation_end,
-        )
-
-        # Set up opening hours for all the days of the week
-
         for day in (
             "Monday",
             "Tuesday",
@@ -103,6 +57,61 @@ class TestCourtViewset(APITestCase):
                     time_end=datetime.time(hour=open.hour + 1),
                     price_per_30_minutes=8,
                 )
+
+    def setUp(self) -> None:
+        self.user = UserModel.objects.create_user(
+            email="<EMAIL>", password="<PASSWORD>"
+        )
+        self.club = Club.objects.create(name="Test")
+        self.court = Court.objects.create(
+            name="test", club_id=self.club, is_indoor=False, is_lit=False
+        )
+        self.client = APIClient()
+
+    def test_retrieve_court_retrieves_court(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.get(
+            reverse("courts-detail", kwargs={"pk": self.court.pk}),
+        )
+        self.assertEqual(response.data, CourtSerializer(self.court).data)
+        self.assertEqual(response.data["club_id"], self.club.pk)
+
+    def test_retrieve_not_existing_court_returns_error(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.get(
+            reverse("courts-detail", kwargs={"pk": "2"}),
+        )
+        self.assertEqual(response.status_code, HTTP_404_NOT_FOUND)
+        self.assertEqual(
+            response.data,
+            {"status": "error", "message": "No Court matches the given query."},
+        )
+
+    def test_retrieve_court_schedule_returns_schedule(self):
+        open = datetime.time(hour=8, minute=0)
+
+        # Create a reservation object for the 2nd slot of the day
+
+        reservation_start: datetime.datetime = timezone.make_aware(
+            datetime.datetime.combine(timezone.now().date(), open)
+            + datetime.timedelta(minutes=30),
+            timezone=tz,
+        )
+        reservation_end: datetime.datetime = timezone.make_aware(
+            datetime.datetime.combine(timezone.now().date(), open)
+            + datetime.timedelta(hours=1, minutes=30),
+            timezone=tz,
+        )
+
+        Reservation.objects.create(
+            court=self.court,
+            user_id=self.user.pk,
+            start_datetime=reservation_start,
+            end_datetime=reservation_end,
+        )
+
+        # Set up opening hours for all the days of the week
+        self.create_schedule()
 
         # Authenticate
 
@@ -146,3 +155,44 @@ class TestCourtViewset(APITestCase):
         )
         self.assertFalse(response.data[1]["available"])
         self.assertEqual(response.data[1]["price"], 0)
+
+    def test_get_court_prices_returns_prices(self):
+
+        self.club.employees.add(self.user)
+
+        self.create_schedule()
+        # Authenticate
+
+        self.client.force_authenticate(self.user)
+        response = self.client.get(
+            reverse("courts-prices", kwargs={"pk": self.court.pk})
+        )
+        self.assertEqual(response.status_code, HTTP_200_OK)
+
+    def test_get_court_prices_unauthorized_user_returns_403(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.get(
+            reverse("courts-prices", kwargs={"pk": self.court.pk})
+        )
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_put_court_prices_creates_prices(self):
+        self.create_schedule()
+        self.club.employees.add(self.user)
+        self.client.force_authenticate(self.user)
+        url = reverse("courts-prices", kwargs={"pk": self.court.pk})
+        response = self.client.put(
+            url,
+            data=[
+                {
+                    "weekday": "Sunday",
+                    "time_start": "08:00",
+                    "time_end": "08:30",
+                    "price_per_30_minutes": 4,
+                }
+            ],
+            format="json",
+        )
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+        prices = Prices.objects.all()
+        self.assertEqual(prices.count(), 1)

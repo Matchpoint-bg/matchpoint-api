@@ -103,12 +103,9 @@ class CourtViewSet(
         query_serializer = AvailableCourtQuerySerializer(data=request.query_params)
         query_serializer.is_valid(raise_exception=True)
         date = query_serializer.validated_data["date"]
-        court = Court.objects.get(pk=pk)
-        if pk is not None:
-            slots = ReservationService.get_availability(court=court, date=date)
-            serializer = CourtOpeningSerializer(slots, many=True)
-        else:
-            return Response()
+        court = self.get_object()
+        slots = ReservationService.get_availability(court=court, date=date)
+        serializer = CourtOpeningSerializer(slots, many=True)
         return Response(data=serializer.data)
 
     @extend_schema(
@@ -126,26 +123,24 @@ class CourtViewSet(
     def prices(self, request: Request, pk=None) -> Response:
         court = self.get_object()
         if self.request.method == "GET":
-            if pk is None:
-                raise Exception
             prices = Prices.objects.filter(court=court).all()
             serializer = CourtsPricesSerializer(prices, many=True)
             return Response(data=serializer.data)
-        elif self.request.method == "PUT":
-            Prices.objects.filter(court=court).delete()
-            serializer = CourtsPricesSerializer(data=request.data, many=True)
-            serializer.is_valid(raise_exception=True)
-            Prices.objects.bulk_create(
-                Prices(
-                    court=court,
-                    weekday=price["weekday"],
-                    time_start=price["time_start"],
-                    time_end=price["time_end"],
-                    price_per_30_minutes=price["price_per_30_minutes"],
-                )
-                for price in serializer.validated_data
+
+        Prices.objects.filter(court=court).delete()
+        serializer = CourtsPricesSerializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+        Prices.objects.bulk_create(
+            Prices(
+                court=court,
+                weekday=price["weekday"],
+                time_start=price["time_start"],
+                time_end=price["time_end"],
+                price_per_30_minutes=price["price_per_30_minutes"],
             )
-            return Response(status=status.HTTP_201_CREATED)
+            for price in serializer.validated_data
+        )
+        return Response(status=status.HTTP_201_CREATED)
 
     @extend_schema(
         methods=["PUT"],
