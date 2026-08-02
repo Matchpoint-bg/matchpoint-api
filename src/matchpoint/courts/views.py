@@ -1,6 +1,7 @@
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -12,6 +13,11 @@ from courts.serializers import (
     CourtOpeningSerializer,
     CourtSerializer,
 )
+from clubs.models import Club
+from exceptionalunavailability.models import ExceptionalUnavailability
+from exceptionalunavailability.serializers import ExceptionalUnavailabilitySerializer
+from pricings.models import Prices
+from pricings.serializers import CourtsPricesSerializer
 from .models import Court
 from reservations.services import ReservationService
 
@@ -64,11 +70,23 @@ class CourtViewSet(
 ):
     queryset = Court.objects.all()
     serializer_class = CourtSerializer
+    permission_action_classes = {
+        "create": [IsAuthenticated, IsClubEmployeeOrAdmin],
+        "update": [IsAuthenticated, IsClubEmployeeOrAdmin],
+        "partial_update": [IsAuthenticated, IsClubEmployeeOrAdmin],
+        "destroy": [IsAuthenticated, IsClubEmployeeOrAdmin],
+        "prices": [IsAuthenticated, IsClubEmployeeOrAdmin],
+        "employees": [IsAuthenticated, IsClubEmployeeOrAdmin],
+        "unavailabilities": [IsAuthenticated, IsClubEmployeeOrAdmin],
+    }
+
+    permission_classes = [AllowAny]
 
     def get_permissions(self):
-        if self.action in ("create", "update", "partial_update", "destroy"):
-            return [IsAuthenticated(), IsClubEmployeeOrAdmin()]
-        return []
+        permission_classes = self.permission_action_classes.get(
+            self.action, self.permission_classes
+        )
+        return [permission() for permission in permission_classes]
 
     @extend_schema(
         summary="Retrieve the court's availabilities for a given date",
@@ -85,10 +103,82 @@ class CourtViewSet(
         query_serializer = AvailableCourtQuerySerializer(data=request.query_params)
         query_serializer.is_valid(raise_exception=True)
         date = query_serializer.validated_data["date"]
-        court = Court.objects.get(pk=pk)
-        if pk is not None:
-            slots = ReservationService.get_availability(court=court, date=date)
-            serializer = CourtOpeningSerializer(slots, many=True)
-        else:
-            return Response()
+        court = self.get_object()
+        slots = ReservationService.get_availability(court=court, date=date)
+        serializer = CourtOpeningSerializer(slots, many=True)
         return Response(data=serializer.data)
+
+    @extend_schema(
+        methods=["GET"],
+        summary="Retrieve the court's prices",
+        responses={200: CourtsPricesSerializer(many=True)},
+    )
+    @extend_schema(
+        methods=["PUT"],
+        summary="Add prices for the court",
+        description="Create prices for the selected court. WARNING: the existing prices will be deleted, so make sure you don't append data, but send also the data that is not modified",
+        request=CourtsPricesSerializer(many=True),
+    )
+    @action(methods=["get", "put"], detail=True, url_path="prices", url_name="prices")
+    def prices(self, request: Request, pk=None) -> Response:
+        court = self.get_object()
+        if self.request.method == "GET":
+            prices = Prices.objects.filter(court=court).all()
+            serializer = CourtsPricesSerializer(prices, many=True)
+            return Response(data=serializer.data)
+
+        Prices.objects.filter(court=court).delete()
+        serializer = CourtsPricesSerializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+        Prices.objects.bulk_create(
+            Prices(
+                court=court,
+                weekday=price["weekday"],
+                time_start=price["time_start"],
+                time_end=price["time_end"],
+                price_per_30_minutes=price["price_per_30_minutes"],
+            )
+            for price in serializer.validated_data
+        )
+        return Response(status=status.HTTP_201_CREATED)
+
+    @extend_schema(
+        methods=["PUT"],
+        summary="Create unavailability for a court",
+        description="Create and exceptional unavailability for the court",
+        request=ExceptionalUnavailabilitySerializer,
+    )
+    @extend_schema(
+        methods=["GET"],
+        summary="Get court's unavailabilities",
+        description="Retrieves the unavailabilities of a court",
+        responses={200: ExceptionalUnavailabilitySerializer},
+    )
+    @action(
+        methods=["get", "put"],
+        detail=True,
+        url_path="unavailabilities",
+        url_name="unavailabilities",
+    )
+    def unavailabilities(self, request: Request, pk=None) -> Response:
+        court = self.get_object()
+
+        if self.request.method == "GET":
+            unavailabilities = ExceptionalUnavailability.objects.filter(
+                court=court
+            ).all()
+            serializer = ExceptionalUnavailabilitySerializer(
+                unavailabilities, many=True
+            )
+            return Response(data=serializer.data)
+
+        serializer = ExceptionalUnavailabilitySerializer(data=self.request.data)
+        serializer.is_valid(raise_exception=True)
+        club = Club.objects.get(pk=court.club_id.pk)
+        ExceptionalUnavailability.objects.create(
+            club=club,
+            court=court,
+            start_datetime=serializer.validated_data["start_datetime"],
+            end_datetime=serializer.validated_data["end_datetime"],
+        )
+        return Response(status=status.HTTP_201_CREATED)

@@ -4,6 +4,9 @@ from common.validators import Is30MinutesIncrement
 
 
 class OpeningHours(models.Model):
+    class Meta:
+        unique_together = ["club", "weekday"]
+
     class WeekdayChoices(models.TextChoices):
         MONDAY = "Monday", "Mon"
         TUESDAY = "Tuesday", "Tue"

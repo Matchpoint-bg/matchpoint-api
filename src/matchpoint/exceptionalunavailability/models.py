@@ -6,6 +6,9 @@ from courts.models import Court
 
 # Create your models here.
 class ExceptionalUnavailability(models.Model):
+    class Meta:
+        unique_together = ["club", "court", "start_datetime", "end_datetime"]
+
     club = models.ForeignKey(
         to=Club, on_delete=models.CASCADE, related_name="unavailability"
     )
