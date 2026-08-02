@@ -5,6 +5,9 @@ from users.models import CustomUser
 
 
 class Reservation(models.Model):
+    class Meta:
+        unique_together = ["court", "start_datetime"]
+
     court = models.ForeignKey(to=Court, on_delete=models.CASCADE)
     user = models.ForeignKey(to=CustomUser, on_delete=models.CASCADE)
     start_datetime = models.DateTimeField(validators=[Is30MinutesIncrement()])

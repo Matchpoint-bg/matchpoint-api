@@ -1,4 +1,5 @@
 from datetime import datetime, time
+from django.db import IntegrityError
 from rest_framework.test import APITestCase
 from common.exceptions import IncorrectTimeException
 from courts.models import Court
@@ -33,3 +34,20 @@ class TestExceptionalUnavailabilityModel(APITestCase):
         )
         with self.assertRaises(IncorrectTimeException):
             unavailability.full_clean()
+
+    def test_create_two_unavailabilities_for_same_court_and_date_raises(self):
+        ExceptionalUnavailability.objects.create(
+            club=self.club,
+            court=self.court,
+            start_datetime=datetime.combine(datetime.today(), time(hour=10, minute=30)),
+            end_datetime=datetime.combine(datetime.today(), time(hour=11)),
+        )
+        with self.assertRaises(IntegrityError):
+            ExceptionalUnavailability.objects.create(
+                club=self.club,
+                court=self.court,
+                start_datetime=datetime.combine(
+                    datetime.today(), time(hour=10, minute=30)
+                ),
+                end_datetime=datetime.combine(datetime.today(), time(hour=11)),
+            )
