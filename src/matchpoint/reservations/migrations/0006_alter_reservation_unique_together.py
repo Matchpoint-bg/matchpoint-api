@@ -4,15 +4,14 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('courts', '0005_alter_court_name_alter_court_sport_type_and_more'),
-        ('reservations', '0005_alter_reservation_end_datetime_and_more'),
+        ("courts", "0005_alter_court_name_alter_court_sport_type_and_more"),
+        ("reservations", "0005_alter_reservation_end_datetime_and_more"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='reservation',
-            unique_together={('court', 'start_datetime')},
+            name="reservation",
+            unique_together={("court", "start_datetime")},
         ),
     ]

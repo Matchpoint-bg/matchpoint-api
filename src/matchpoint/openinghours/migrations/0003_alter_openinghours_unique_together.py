@@ -4,15 +4,14 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('clubs', '0014_alter_club_email_alter_club_phone'),
-        ('openinghours', '0002_alter_openinghours_closing_hour_and_more'),
+        ("clubs", "0014_alter_club_email_alter_club_phone"),
+        ("openinghours", "0002_alter_openinghours_closing_hour_and_more"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='openinghours',
-            unique_together={('club', 'weekday')},
+            name="openinghours",
+            unique_together={("club", "weekday")},
         ),
     ]

@@ -4,16 +4,18 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('clubs', '0014_alter_club_email_alter_club_phone'),
-        ('courts', '0005_alter_court_name_alter_court_sport_type_and_more'),
-        ('exceptionalunavailability', '0002_alter_exceptionalunavailability_end_datetime_and_more'),
+        ("clubs", "0014_alter_club_email_alter_club_phone"),
+        ("courts", "0005_alter_court_name_alter_court_sport_type_and_more"),
+        (
+            "exceptionalunavailability",
+            "0002_alter_exceptionalunavailability_end_datetime_and_more",
+        ),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='exceptionalunavailability',
-            unique_together={('club', 'court', 'start_datetime', 'end_datetime')},
+            name="exceptionalunavailability",
+            unique_together={("club", "court", "start_datetime", "end_datetime")},
         ),
     ]

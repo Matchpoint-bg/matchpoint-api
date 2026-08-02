@@ -1,7 +1,6 @@
 from rest_framework import permissions, viewsets
 from rest_framework.status import HTTP_201_CREATED
-from common.exceptions import CourtBusyException, IncorrectTimeException
-from common.helpers import is_30_minutes_increment
+from common.exceptions import CourtBusyException
 from reservations.models import Reservation
 from reservations.serializers import (
     ReservationCreationSerializer,

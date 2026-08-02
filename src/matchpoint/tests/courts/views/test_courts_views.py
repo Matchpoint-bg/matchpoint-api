@@ -6,7 +6,6 @@ from courts.models import Court
 from clubs.models import Club
 from openinghours.models import OpeningHours
 from pricings.models import Prices
-from pricings.serializers import CourtsPricesSerializer
 from reservations.models import Reservation
 from django.urls import reverse
 from rest_framework.status import (
