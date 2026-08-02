@@ -49,10 +49,6 @@ class ReservationViewset(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         court = serializer.validated_data["court"]
-        if not is_30_minutes_increment(
-            serializer.validated_data["start_datetime"]
-        ) or not is_30_minutes_increment(serializer.validated_data["end_datetime"]):
-            raise IncorrectTimeException
         if not ReservationService.is_available(
             court,
             serializer.validated_data["start_datetime"],
@@ -63,11 +59,14 @@ class ReservationViewset(viewsets.ModelViewSet):
         return Response(data=serializer.data, status=HTTP_201_CREATED)
 
     def update(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        serializer = self.get_serializer()
+        reservation = self.get_object()
+        serializer = self.get_serializer(instance=reservation, data=request.data)
         serializer.is_valid(raise_exception=True)
         info = serializer.validated_data
-        if not is_30_minutes_increment(
-            info["start_datetime"]
-        ) or not is_30_minutes_increment(info["end_datetime"]):
-            raise IncorrectTimeException
-        return super().update(request)
+        if not ReservationService.is_available(
+            info["court"], info["start_datetime"], info["end_datetime"], reservation.pk
+        ):
+            raise CourtBusyException
+
+        self.perform_update(serializer)
+        return Response(serializer.data)

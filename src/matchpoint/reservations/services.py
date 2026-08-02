@@ -15,11 +15,18 @@ from django.db.models import Q
 class ReservationService:
     @staticmethod
     def is_available(
-        court: Court, start: datetime.datetime, end: datetime.datetime
+        court: Court,
+        start: datetime.datetime,
+        end: datetime.datetime,
+        current_res_id: int | None = None,
     ) -> bool:
-        existing_reservations = Reservation.objects.filter(
-            Q(court=court) & (Q(start_datetime__lt=end) & Q(end_datetime__gt=start))
-        ).exists()
+        existing_reservations = (
+            Reservation.objects.filter(
+                Q(court=court) & (Q(start_datetime__lt=end) & Q(end_datetime__gt=start))
+            )
+            .exclude(pk=current_res_id)
+            .exists()
+        )
         exceptional_closures = ExceptionalUnavailability.objects.filter(
             court=court, start_datetime__lt=end, end_datetime__gt=start
         )
