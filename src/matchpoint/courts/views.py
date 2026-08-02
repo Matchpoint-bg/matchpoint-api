@@ -172,14 +172,13 @@ class CourtViewSet(
             )
             return Response(data=serializer.data)
 
-        if self.request.method == "PUT":
-            serializer = ExceptionalUnavailabilitySerializer(data=self.request.data)
-            serializer.is_valid(raise_exception=True)
-            club = Club.objects.get(pk=court.club_id.pk)
-            ExceptionalUnavailability.objects.create(
-                club=club,
-                court=court,
-                start_datetime=serializer.validated_data["start_datetime"],
-                end_datetime=serializer.validated_data["end_datetime"],
-            )
-            return Response(status=status.HTTP_201_CREATED)
+        serializer = ExceptionalUnavailabilitySerializer(data=self.request.data)
+        serializer.is_valid(raise_exception=True)
+        club = Club.objects.get(pk=court.club_id.pk)
+        ExceptionalUnavailability.objects.create(
+            club=club,
+            court=court,
+            start_datetime=serializer.validated_data["start_datetime"],
+            end_datetime=serializer.validated_data["end_datetime"],
+        )
+        return Response(status=status.HTTP_201_CREATED)

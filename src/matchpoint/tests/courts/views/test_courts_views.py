@@ -196,3 +196,31 @@ class TestCourtViewset(APITestCase):
         self.assertEqual(response.status_code, HTTP_201_CREATED)
         prices = Prices.objects.all()
         self.assertEqual(prices.count(), 1)
+
+    def test_availabilities_endpoints_create_and_returns_unavailabilities(self):
+        self.create_schedule()
+        self.club.employees.add(self.user)
+        self.client.force_authenticate(self.user)
+
+        url = reverse("courts-unavailabilities", kwargs={"pk": self.court.pk})
+
+        resp = self.client.put(
+            url,
+            data={
+                "start_datetime": datetime.datetime(year=2026, day=2, month=8, hour=9),
+                "end_datetime": datetime.datetime(year=2026, day=2, month=8, hour=17),
+            },
+        )
+
+        self.assertEqual(resp.status_code, HTTP_201_CREATED)
+
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, HTTP_200_OK)
+        self.assertEqual(
+            resp.data[0],
+            {
+                "pk": 1,
+                "start_datetime": "2026-08-02T09:00:00Z",
+                "end_datetime": "2026-08-02T17:00:00Z",
+            },
+        )
