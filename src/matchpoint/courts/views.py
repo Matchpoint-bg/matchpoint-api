@@ -1,7 +1,6 @@
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins
 from rest_framework import status
-from django.utils import timezone
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.request import Request
@@ -18,7 +17,7 @@ from clubs.models import Club
 from exceptionalunavailability.models import ExceptionalUnavailability
 from exceptionalunavailability.serializers import ExceptionalUnavailabilitySerializer
 from pricings.models import Prices
-from pricings.serializers import CourtsPricesSerializer, PricesSerializer
+from pricings.serializers import CourtsPricesSerializer
 from .models import Court
 from reservations.services import ReservationService
 

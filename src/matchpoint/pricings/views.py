@@ -3,11 +3,11 @@
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework.mixins import DestroyModelMixin, UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.viewsets import GenericViewSet, ModelViewSet
+from rest_framework.viewsets import GenericViewSet
 
 from clubs.permissions import IsClubEmployeeOrAdmin
 from pricings.models import Prices
-from pricings.serializers import CourtsPricesSerializer, PricesSerializer
+from pricings.serializers import CourtsPricesSerializer
 
 
 @extend_schema_view(

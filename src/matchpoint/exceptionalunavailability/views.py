@@ -1,7 +1,7 @@
 # Create your views here.
 from rest_framework.mixins import DestroyModelMixin, UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.viewsets import GenericViewSet, ModelViewSet
+from rest_framework.viewsets import GenericViewSet
 
 from clubs.permissions import IsClubEmployeeOrAdmin
 from exceptionalunavailability.models import ExceptionalUnavailability
