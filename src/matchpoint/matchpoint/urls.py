@@ -48,6 +48,7 @@ urlpatterns = [
     path("api/", include("courts.urls")),
     path("api/", include("pricings.urls")),
     path("api/", include("exceptionalunavailability.urls")),
+    path("api/", include("openinghours.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "api/schema/swagger-ui/",

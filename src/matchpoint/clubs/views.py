@@ -1,4 +1,5 @@
-from rest_framework.decorators import action
+from rest_framework.decorators import action, permission_classes
+from rest_framework import status
 from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
@@ -9,6 +10,8 @@ from rest_framework.request import Request
 from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
 from clubs.permissions import IsClubEmployeeOrAdmin
+from openinghours.models import OpeningHours
+from openinghours.serializers import OpeningHoursSerializer
 from users.serializers import UserListSerializer
 from .models import Club
 from .serializers import ClubSerializer
@@ -72,3 +75,42 @@ class ClubViewSet(
         club: Club = self.get_object()
         serializer = UserListSerializer(club.employees.all(), many=True)
         return Response(serializer.data)
+
+    @extend_schema(
+        methods=["GET"],
+        summary="Retrieve the opening hours",
+        description="Retrieve the opening hours of a specific club",
+        responses={200: OpeningHoursSerializer(many=True)},
+    )
+    @extend_schema(
+        methods=["POST"],
+        summary="Create an opening hour",
+        description="Create an opening hour for a specific club",
+        request=OpeningHoursSerializer,
+    )
+    @action(
+        methods=["get", "post"],
+        detail=True,
+        permission_classes=[IsClubEmployeeOrAdmin],
+        url_name="opening-hours",
+        url_path="opening-hours",
+    )
+    def opening_hours(self, request: Request, pk=None) -> Response:
+        club = self.get_object()
+
+        if self.request.method == "GET":
+            opening_hours = OpeningHours.objects.filter(club=club).all()
+            serializer = OpeningHoursSerializer(opening_hours, many=True)
+            return Response(data=serializer.data)
+
+        serializer = OpeningHoursSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        OpeningHours.objects.create(
+            club=club,
+            weekday=serializer.validated_data["weekday"],
+            opening_hour=serializer.validated_data["opening_hour"],
+            closing_hour=serializer.validated_data["closing_hour"],
+        )
+
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
