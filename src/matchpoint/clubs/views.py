@@ -1,4 +1,4 @@
-from rest_framework.decorators import action, permission_classes
+from rest_framework.decorators import action
 from rest_framework import status
 from drf_spectacular.utils import (
     extend_schema,
