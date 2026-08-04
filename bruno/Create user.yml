@@ -1,0 +1,50 @@
+info:
+  name: Create user
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://127.0.0.1:8000/api/v1/auth/registration
+  body:
+    type: json
+    data: |-
+      {
+        "email": "testuser@test.com",
+        "password1": "T3st_P4sSw0rd!",
+        "password2": "T3st_P4sSw0rd!",
+        "first_name": "Test",
+        "last_name": "Test"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("createUser", function () {
+          expect(res.getStatus()).to.equal(201);
+        })
+  actions:
+    - type: set-variable
+      phase: after-response
+      selector:
+        expression: res.body.user.pk
+        method: jsonq
+      variable:
+        name: user_id
+        scope: runtime
+    - type: set-variable
+      phase: after-response
+      selector:
+        expression: res.body.access
+        method: jsonq
+      variable:
+        name: access_token
+        scope: runtime
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
