@@ -1,0 +1,32 @@
+info:
+  name: Get user info
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: http://127.0.0.1:8000/api/users/{{user_id}}/
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("statusCodeIs200", function() {
+          expect(res.getStatus()).to.equal(200);
+        });
+
+        test("userInfoIsRetrieved", function(){
+          const body = res.getBody()
+          expect(body.preferred_language).to.equal("Bulgarian");
+          expect(body.phone_number).to.equal("");
+          expect(body.first_name).to.equal("Test");
+          expect(body.last_name).to.equal("Test");
+          expect(body.email).to.equal("testuser@test.com");
+        })
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
