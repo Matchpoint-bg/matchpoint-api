@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.test import APIClient, APITestCase
 from django.contrib.auth import get_user_model
 from rest_framework import status
-from clubs.models import Club
+from clubs.factory import ClubFactory
 from courts.models import Court
 from users.models import CustomUser
 
@@ -15,7 +15,7 @@ class TestClubsAPIViews(APITestCase):
         self.user = UserModel.objects.create_superuser(
             email="<EMAIL>", password="<PASSWORD>"
         )
-        self.club = Club.objects.create(name="Test")
+        self.club = ClubFactory.create()
         self.club.employees.add(self.user)
         self.club.save()
         self.client = APIClient()

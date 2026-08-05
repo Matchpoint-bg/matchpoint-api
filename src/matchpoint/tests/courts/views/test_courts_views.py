@@ -1,9 +1,9 @@
 from rest_framework.test import APIClient, APITestCase
+from clubs.factory import ClubFactory
 from courts.serializers import CourtSerializer
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from courts.models import Court
-from clubs.models import Club
 from openinghours.models import OpeningHours
 from pricings.models import Prices
 from reservations.models import Reservation
@@ -61,7 +61,7 @@ class TestCourtViewset(APITestCase):
         self.user = UserModel.objects.create_user(
             email="<EMAIL>", password="<PASSWORD>"
         )
-        self.club = Club.objects.create(name="Test")
+        self.club = ClubFactory.create()
         self.court = Court.objects.create(
             name="test", club_id=self.club, is_indoor=False, is_lit=False
         )

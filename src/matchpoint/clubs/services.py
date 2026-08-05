@@ -1,8 +1,9 @@
 import datetime
+from django.db.models.query import QuerySet
 from django.utils import timezone
 
 from common.exceptions import NoOpeningTimesFound
-from common.helpers import get_weekday_name
+from common.helpers import get_weekday_name, haversine
 from .models import Club
 from openinghours.models import OpeningHours
 from typing import Tuple
@@ -30,3 +31,16 @@ class ClubService:
             ), timezone.make_aware(
                 datetime.datetime.combine(date, club_openings.closing_hour)
             )
+
+    @staticmethod
+    def fiter_by_distance(
+        queryset: QuerySet, lat: float, long: float, radius: float = 10
+    ):
+        clubs = Club.objects.exclude(latitude=None).exclude(longitude=None)
+
+        for club in clubs:
+            dist = haversine(club.latitude, club.longitude, lat, long)
+            if dist > radius:
+                queryset.objects.exclude(club)
+
+        return queryset
