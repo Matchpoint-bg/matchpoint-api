@@ -23,7 +23,7 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r src/matchpoint/requirements.txt
+          pip install -r src/matchpoint/requirements-dev.txt
 
       - name: Check format
         run: |
