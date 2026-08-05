@@ -4,7 +4,6 @@ from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from django.contrib.auth import get_user_model
 from clubs.factory import ClubFactory
-from clubs.models import Club
 from courts.models import Court
 from openinghours.models import OpeningHours
 from pricings.models import Prices

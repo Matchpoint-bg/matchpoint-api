@@ -2,7 +2,6 @@ from django.utils import timezone
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
 from clubs.factory import ClubFactory
-from clubs.models import Club
 from courts.models import Court
 from openinghours.models import OpeningHours
 from pricings.models import Prices

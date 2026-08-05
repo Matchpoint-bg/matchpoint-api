@@ -1,7 +1,6 @@
 import datetime
 from rest_framework.test import APITestCase
 from clubs.factory import ClubFactory
-from clubs.models import Club
 from courts.models import Court
 from pricings.models import Prices
 from pricings.services import PricingService

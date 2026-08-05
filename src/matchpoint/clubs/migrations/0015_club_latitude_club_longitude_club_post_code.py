@@ -4,27 +4,26 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('clubs', '0014_alter_club_email_alter_club_phone'),
+        ("clubs", "0014_alter_club_email_alter_club_phone"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='club',
-            name='latitude',
+            model_name="club",
+            name="latitude",
             field=models.FloatField(default=42.65),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='club',
-            name='longitude',
+            model_name="club",
+            name="longitude",
             field=models.FloatField(default=23.36),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='club',
-            name='post_code',
+            model_name="club",
+            name="post_code",
             field=models.CharField(default=1756, max_length=8),
             preserve_default=False,
         ),

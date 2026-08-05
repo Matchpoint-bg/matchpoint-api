@@ -4,7 +4,6 @@ from courts.serializers import CourtSerializer
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from courts.models import Court
-from clubs.models import Club
 from openinghours.models import OpeningHours
 from pricings.models import Prices
 from reservations.models import Reservation

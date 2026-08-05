@@ -4,7 +4,6 @@ from rest_framework.test import APIClient, APITestCase
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from clubs.factory import ClubFactory
-from clubs.models import Club
 from courts.models import Court
 from users.models import CustomUser
 

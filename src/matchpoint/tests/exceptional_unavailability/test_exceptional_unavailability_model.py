@@ -4,7 +4,6 @@ from rest_framework.test import APITestCase
 from clubs.factory import ClubFactory
 from common.exceptions import IncorrectTimeException
 from courts.models import Court
-from clubs.models import Club
 from exceptionalunavailability.models import ExceptionalUnavailability
 
 
