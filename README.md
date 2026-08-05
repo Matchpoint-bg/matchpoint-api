@@ -1,8 +1,10 @@
-# MatchPoint Backend
+# MatchPoint API
 
 Backend REST API powering MatchPoint, a tennis court reservation platform.
 
 The API is built with Django REST Framework and exposes endpoints used by both the web frontend and the mobile application.
+
+![Python](https://img.shields.io/badge/Python-3.13-blue)![Django](https://img.shields.io/badge/Django-5.x-success)![License](https://img.shields.io/badge/license-MIT-green)![Coverage](https://img.shields.io/badge/coverage-87%25-brightgreen)
 
 ## Features
 
@@ -43,12 +45,15 @@ Upcoming features:
 src/
   matchpoint/
     clubs/
+    common/
     courts/
+    exceptionalunavailability/
+    openinghours/
+    pricings/
     reservations/
     profiles/
+    tests/
     users/
-
-tests/
 ```
 
 Each application is responsible for a single business domain.
@@ -58,6 +63,12 @@ Business logic is implemented inside service classes whenever possible.
 ---
 
 ## Running locally
+
+### Prerequisites
+
+- Python 3.13+
+- Docker & Docker Compose
+- PostgreSQL (provided through Docker)
 
 ### 1. Clone the repository
 
@@ -96,25 +107,18 @@ Windows
 pip install -r requirements.txt
 ```
 
+For dev environment, use
+
+```bash
+pip install -r requirements-dev.txt
+```
+
 ---
 
 ### 4. Configure environment variables
 
-Create a `.env` file.
-
-Example:
-
-```env
-DEBUG=True
-
-POSTGRES_DB=matchpoint
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=password
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-
-SECRET_KEY=replace-me
-```
+Rename `.env.example` file to `.env` and update the values for Google and secret
+key.
 
 ---
 
@@ -144,7 +148,13 @@ python manage.py createsuperuser
 
 ---
 
-### 8. Start the server
+### 8. Seed data
+
+Coming soon.
+
+The project will provide a seed command to create demo clubs, courts and users for frontend development and API testing.
+
+### 9. Start the server
 
 ```bash
 python manage.py runserver
@@ -233,6 +243,8 @@ Authorization: Bearer <access_token>
 - Prefer TDD when adding new features.
 - Document every endpoint with drf-spectacular.
 - Write type hints whenever possible.
+- staging branch is the reference for FE implementation
+- Unit test coverage should be around 85% min
 
 ---
 
@@ -259,3 +271,15 @@ Authorization: Bearer <access_token>
 - Match history
 - Tournaments
 - Gamification
+
+---
+
+## Future Architecture
+
+The long-term architecture will consist of multiple services:
+
+- MatchPoint API (Django)
+- PostgreSQL
+- Analytics service
+- DuckDB
+- Frontend (PWA)
