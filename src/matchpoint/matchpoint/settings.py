@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
     "dj_rest_auth.registration",
     "drf_spectacular",
+    "django_filters",
 ] + PROJECT_APPS
 
 MIDDLEWARE = [
@@ -103,6 +104,7 @@ REST_FRAMEWORK = {
         "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
     ),
     "EXCEPTION_HANDLER": "matchpoint.exceptions.custom_exception_handler",
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
 
 # django.contrib.sites

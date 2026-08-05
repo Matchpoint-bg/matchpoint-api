@@ -1,3 +1,5 @@
+from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import QuerySet
 from rest_framework.decorators import action
 from rest_framework import status
 from drf_spectacular.utils import (
@@ -9,19 +11,31 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
+from clubs.filters import ClubFilter
 from clubs.permissions import IsClubEmployeeOrAdmin
 from openinghours.models import OpeningHours
 from openinghours.serializers import OpeningHoursSerializer
 from users.serializers import UserListSerializer
 from .models import Club
-from .serializers import ClubSerializer
+from .serializers import ClubSerializer, ExternalClubSerializer
 from courts.serializers import CourtSerializer
 from common.serializers import ErrorSerializer
 
 
 @extend_schema_view(
     list=extend_schema(
-        summary="List clubs", description="Returns a list of all the clubs in the app."
+        summary="List clubs",
+        description="""
+Returns a list of all the clubs in the app.
+
+There are several filters available:
+    
+    - city: Search by the name of the city of the club
+    - post_code: Search by the post code of the club
+    - name: Search by the name of the club (doesn't have to be a perfect match)
+    - latitude & longitude: search by latitude and longitude. In that case, we calculate the distance of the club based to the given values.
+      By default, all clubs with a distance greater than 10km will be excluded
+""",
     ),
     retrieve=extend_schema(
         summary="Retrieve a club",
@@ -44,11 +58,34 @@ class ClubViewSet(
 ):
     queryset = Club.objects.all()
     serializer_class = ClubSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ClubFilter
+
+    def get_queryset(self) -> QuerySet:
+        queryset = super().get_queryset()
+
+        lat = self.request.query_params.get("lat")
+        long = self.request.query_params.get("long")
+
+        if lat and long:
+            pass
+        elif (lat and not long) or (long and not lat):
+            raise Exception
+
+        return queryset.distinct()
 
     def get_permissions(self):
         if self.action in ("update", "partial_update", "employees"):
             return [IsAuthenticated(), IsClubEmployeeOrAdmin()]
         return []
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return ExternalClubSerializer
+        club = self.get_object()
+        if self.request.user in club.employees.all() or self.request.user.is_staff:
+            return ClubSerializer
+        return ClubSerializer
 
     @extend_schema(
         summary="Retrieve the courts of a club",

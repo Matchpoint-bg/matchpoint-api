@@ -1,7 +1,7 @@
 from django.utils import timezone
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
-from clubs.models import Club
+from clubs.factory import ClubFactory
 from courts.models import Court
 from openinghours.models import OpeningHours
 from pricings.models import Prices
@@ -15,7 +15,7 @@ class TestReservations(APITestCase):
     def setUp(self) -> None:
         open = time(hour=8)
         close = time(hour=18)
-        self.club = Club.objects.create(name="Test")
+        self.club = ClubFactory.create()
         self.court = Court.objects.create(
             name="test", club_id=self.club, is_indoor=False, is_lit=False
         )

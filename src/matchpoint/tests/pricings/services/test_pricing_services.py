@@ -1,6 +1,6 @@
 import datetime
 from rest_framework.test import APITestCase
-from clubs.models import Club
+from clubs.factory import ClubFactory
 from courts.models import Court
 from pricings.models import Prices
 from pricings.services import PricingService
@@ -8,7 +8,7 @@ from pricings.services import PricingService
 
 class TestPricingServices(APITestCase):
     def setUp(self) -> None:
-        self.club = Club.objects.create(name="test")
+        self.club = ClubFactory.create()
         self.court = Court.objects.create(
             name="test", club_id=self.club, is_indoor=False, is_lit=False
         )
