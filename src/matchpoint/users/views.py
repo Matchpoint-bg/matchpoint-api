@@ -7,10 +7,12 @@ from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from django.conf import settings
-from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from users.permissions import IsSelf
 from .models import CustomUser
 from .serializers import UserSerializer, UserListSerializer
 
@@ -19,21 +21,25 @@ class UserViewset(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
 
+    def get_permissions(self):
+        if self.action in ["update", "destroy"]:
+            return [IsSelf()]
+        elif self.action == "list":
+            return [IsAdminUser()]
+        return [IsAuthenticated()]
+
     def list(self, request, *args, **kwargs):
         self.serializer_class = UserListSerializer
         return super().list(request, *args, **kwargs)
 
-    def update(self, request, pk=None):
-        user = get_object_or_404(self.queryset, pk=pk)
-        if user != request.user:
-            return Response(
-                data={
-                    "status": "error",
-                    "message": "You are not allowed to modify this user",
-                },
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
-        return super().update(request, pk)
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+
+        user = self.get_object()
+        serializer = UserSerializer(instance=user, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(data=serializer.data)
 
 
 class GoogleLogin(SocialLoginView):
