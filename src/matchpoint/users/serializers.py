@@ -31,7 +31,7 @@ class UserListSerializer(ModelSerializer):
 class UserRegisterSerializer(RegisterSerializer):
     first_name = serializers.CharField(max_length=150)
     last_name = serializers.CharField(max_length=150)
-    phone_numner = serializers.CharField(max_length=12, required=False)
+    phone_number = serializers.CharField(max_length=12, required=False)
 
     def get_cleaned_data(self):
         data = super().get_cleaned_data()

@@ -34,7 +34,7 @@ urlpatterns = [
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/v1/auth/", include("dj_rest_auth.urls")),
-    path("api/v1/auth/registration", include("dj_rest_auth.registration.urls")),
+    path("api/v1/auth/registration/", include("dj_rest_auth.registration.urls")),
     path("api/v1/auth/google/", GoogleLogin.as_view(), name="google_login"),
     path(
         "api/v1/auth/google/callback/",
