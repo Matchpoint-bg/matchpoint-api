@@ -4,7 +4,7 @@ Backend REST API powering MatchPoint, a tennis court reservation platform.
 
 The API is built with Django REST Framework and exposes endpoints used by both the web frontend and the mobile application.
 
-![Python](https://img.shields.io/badge/Python-3.13-blue)![Django](https://img.shields.io/badge/Django-5.x-success)![License](https://img.shields.io/badge/license-MIT-green)![Coverage](https://img.shields.io/badge/coverage-87%25-brightgreen)
+![Python](https://img.shields.io/badge/Python-3.13-blue) ![Django](https://img.shields.io/badge/Django-5.x-success) ![License](https://img.shields.io/badge/license-MIT-green) ![Coverage](https://img.shields.io/badge/coverage-89%25-brightgreen)
 
 ## Features
 
