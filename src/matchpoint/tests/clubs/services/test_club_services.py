@@ -2,6 +2,7 @@ import datetime
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from rest_framework.test import APITestCase
+from clubs.factory import ClubFactory
 from clubs.models import Club
 from openinghours.models import OpeningHours
 from clubs.services import ClubService
@@ -14,7 +15,7 @@ class TestClubsAPIViews(APITestCase):
         self.user = UserModel.objects.create_superuser(
             email="<EMAIL>", password="<PASSWORD>"
         )
-        self.club = Club.objects.create(name="Test")
+        self.club = ClubFactory.create()
 
     def test_retrieve_opening_hours_returns_opening_hours(self):
         for day in (

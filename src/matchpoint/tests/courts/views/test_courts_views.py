@@ -1,4 +1,5 @@
 from rest_framework.test import APIClient, APITestCase
+from clubs.factory import ClubFactory
 from courts.serializers import CourtSerializer
 from django.utils import timezone
 from django.contrib.auth import get_user_model
@@ -61,7 +62,7 @@ class TestCourtViewset(APITestCase):
         self.user = UserModel.objects.create_user(
             email="<EMAIL>", password="<PASSWORD>"
         )
-        self.club = Club.objects.create(name="Test")
+        self.club = ClubFactory.create()
         self.court = Court.objects.create(
             name="test", club_id=self.club, is_indoor=False, is_lit=False
         )
