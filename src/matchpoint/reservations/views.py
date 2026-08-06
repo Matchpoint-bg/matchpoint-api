@@ -4,7 +4,7 @@ from common.exceptions import CourtBusyException
 from reservations.models import Reservation
 from reservations.serializers import (
     ReservationCreationSerializer,
-    ReservationsSerializer,
+    ReservationSerializer,
 )
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -15,13 +15,12 @@ from .services import ReservationService
 
 class ReservationViewset(viewsets.ModelViewSet):
     queryset = Reservation.objects.all()
-    serializer_class = ReservationsSerializer
     permission_classes = [permissions.IsAuthenticated, IsStaffOrReservationOwner]
 
     def get_serializer_class(self, *args: Any, **kwargs: Any):
         if self.action in ("create", "update", "partial_update"):
             return ReservationCreationSerializer
-        return ReservationsSerializer
+        return ReservationSerializer
 
     def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         if not request.user.is_staff:
@@ -42,7 +41,7 @@ class ReservationViewset(viewsets.ModelViewSet):
             court, start_datetime, end_datetime
         )
 
-        serializer.save(user=self.request.user, reservation_amt=price)
+        return serializer.save(user=self.request.user, reservation_amt=price)
 
     def create(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         serializer = self.get_serializer(data=request.data)
@@ -54,8 +53,8 @@ class ReservationViewset(viewsets.ModelViewSet):
             serializer.validated_data["end_datetime"],
         ):
             raise CourtBusyException
-        self.perform_create(serializer)
-        return Response(data=serializer.data, status=HTTP_201_CREATED)
+        obj = self.perform_create(serializer)
+        return Response(data=ReservationSerializer(obj).data, status=HTTP_201_CREATED)
 
     def update(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         reservation = self.get_object()

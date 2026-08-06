@@ -37,7 +37,8 @@ class ReservationService:
         court: Court, date: datetime.datetime
     ) -> List[Tuple[datetime.datetime, datetime.datetime]]:
         day, month, year = date.day, date.month, date.year
-        unavailable_times = Reservation.objects.filter(
+        unavailable_times = []
+        reserved_times = Reservation.objects.filter(
             court=court,
             start_datetime__gt=datetime.datetime(
                 year=year, month=month, day=day, hour=0, minute=0, second=0
@@ -46,10 +47,28 @@ class ReservationService:
                 year=year, month=month, day=day, hour=23, minute=59, second=59
             ),
         )
-        return [
-            (unavailable_time.start_datetime, unavailable_time.end_datetime)
-            for unavailable_time in unavailable_times
-        ]
+        unavailable_times.extend(
+            [
+                (reservation.start_datetime, reservation.end_datetime)
+                for reservation in reserved_times
+            ]
+        )
+        closing_times = ExceptionalUnavailability.objects.filter(
+            court=court,
+            start_datetime__gt=datetime.datetime(
+                year=year, month=month, day=day, hour=0, minute=0, second=0
+            ),
+            end_datetime__lt=datetime.datetime(
+                year=year, month=month, day=day, hour=23, minute=59, second=59
+            ),
+        )
+        unavailable_times.extend(
+            [
+                (closing_time.start_datetime, closing_time.end_datetime)
+                for closing_time in closing_times
+            ]
+        )
+        return unavailable_times
 
     @staticmethod
     def _is_slot_available(
