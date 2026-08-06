@@ -1,4 +1,5 @@
 from typing import Tuple, List
+from django.utils import timezone
 from clubs.services import ClubService
 from common.exceptions import CourtBusyException, IncorrectTimeException
 from common.helpers import get_weekday_name, is_minimum_30_minutes
@@ -40,11 +41,15 @@ class ReservationService:
         unavailable_times = []
         reserved_times = Reservation.objects.filter(
             court=court,
-            start_datetime__gt=datetime.datetime(
-                year=year, month=month, day=day, hour=0, minute=0, second=0
+            start_datetime__gt=timezone.make_aware(
+                datetime.datetime(
+                    year=year, month=month, day=day, hour=0, minute=0, second=0
+                )
             ),
-            end_datetime__lt=datetime.datetime(
-                year=year, month=month, day=day, hour=23, minute=59, second=59
+            end_datetime__lt=timezone.make_aware(
+                datetime.datetime(
+                    year=year, month=month, day=day, hour=23, minute=59, second=59
+                )
             ),
         )
         unavailable_times.extend(
@@ -55,11 +60,15 @@ class ReservationService:
         )
         closing_times = ExceptionalUnavailability.objects.filter(
             court=court,
-            start_datetime__gt=datetime.datetime(
-                year=year, month=month, day=day, hour=0, minute=0, second=0
+            start_datetime__gt=timezone.make_aware(
+                datetime.datetime(
+                    year=year, month=month, day=day, hour=0, minute=0, second=0
+                )
             ),
-            end_datetime__lt=datetime.datetime(
-                year=year, month=month, day=day, hour=23, minute=59, second=59
+            end_datetime__lt=timezone.make_aware(
+                datetime.datetime(
+                    year=year, month=month, day=day, hour=23, minute=59, second=59
+                )
             ),
         )
         unavailable_times.extend(
