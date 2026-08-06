@@ -125,14 +125,14 @@ class TestCourtViewset(APITestCase):
             response.data[0]["start"],
             timezone.make_aware(
                 datetime.datetime.combine(timezone.now(), open)
-            ).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            ).strftime("%Y-%m-%dT%H:%M:%S+03:00"),
         )
         self.assertEqual(
             response.data[0]["end"],
             timezone.make_aware(
                 datetime.datetime.combine(timezone.now(), open)
                 + datetime.timedelta(minutes=30)
-            ).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            ).strftime("%Y-%m-%dT%H:%M:%S+03:00"),
         )
         self.assertTrue(response.data[0]["available"])
         self.assertEqual(response.data[0]["price"], 8)
@@ -143,14 +143,14 @@ class TestCourtViewset(APITestCase):
             timezone.make_aware(
                 datetime.datetime.combine(timezone.now(), open)
                 + datetime.timedelta(minutes=30)
-            ).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            ).strftime("%Y-%m-%dT%H:%M:%S+03:00"),
         )
         self.assertEqual(
             response.data[1]["end"],
             timezone.make_aware(
                 datetime.datetime.combine(timezone.now(), open)
                 + datetime.timedelta(minutes=60)
-            ).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            ).strftime("%Y-%m-%dT%H:%M:%S+03:00"),
         )
         self.assertFalse(response.data[1]["available"])
         self.assertEqual(response.data[1]["price"], 0)
@@ -206,8 +206,12 @@ class TestCourtViewset(APITestCase):
         resp = self.client.put(
             url,
             data={
-                "start_datetime": datetime.datetime(year=2026, day=2, month=8, hour=9),
-                "end_datetime": datetime.datetime(year=2026, day=2, month=8, hour=17),
+                "start_datetime": timezone.make_aware(
+                    datetime.datetime(year=2026, day=2, month=8, hour=9)
+                ),
+                "end_datetime": timezone.make_aware(
+                    datetime.datetime(year=2026, day=2, month=8, hour=17)
+                ),
             },
         )
 
@@ -219,7 +223,7 @@ class TestCourtViewset(APITestCase):
             resp.data[0],
             {
                 "pk": 1,
-                "start_datetime": "2026-08-02T09:00:00Z",
-                "end_datetime": "2026-08-02T17:00:00Z",
+                "start_datetime": "2026-08-02T09:00:00+03:00",
+                "end_datetime": "2026-08-02T17:00:00+03:00",
             },
         )

@@ -1,4 +1,3 @@
-from django.utils import timezone
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins
 from rest_framework import status
@@ -179,9 +178,7 @@ class CourtViewSet(
         ExceptionalUnavailability.objects.create(
             club=club,
             court=court,
-            start_datetime=timezone.make_aware(
-                serializer.validated_data["start_datetime"]
-            ),
-            end_datetime=timezone.make_aware(serializer.validated_data["end_datetime"]),
+            start_datetime=serializer.validated_data["start_datetime"],
+            end_datetime=serializer.validated_data["end_datetime"],
         )
         return Response(status=status.HTTP_201_CREATED)
