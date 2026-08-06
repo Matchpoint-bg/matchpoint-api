@@ -1,6 +1,8 @@
+from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework import permissions, viewsets
 from rest_framework.status import HTTP_201_CREATED
 from common.exceptions import CourtBusyException
+from reservations.filters import ReservationFilter
 from reservations.models import Reservation
 from reservations.serializers import (
     ReservationCreationSerializer,
@@ -16,6 +18,8 @@ from .services import ReservationService
 class ReservationViewset(viewsets.ModelViewSet):
     queryset = Reservation.objects.all()
     permission_classes = [permissions.IsAuthenticated, IsStaffOrReservationOwner]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ReservationFilter
 
     def get_serializer_class(self, *args: Any, **kwargs: Any):
         if self.action in ("create", "update", "partial_update"):

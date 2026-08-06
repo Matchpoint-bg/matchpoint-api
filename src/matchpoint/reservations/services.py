@@ -4,6 +4,7 @@ from clubs.services import ClubService
 from common.exceptions import CourtBusyException, IncorrectTimeException
 from common.helpers import get_weekday_name, is_minimum_30_minutes
 from courts.models import Court
+from openinghours.models import OpeningHours
 from pricings.services import PricingService
 from users.models import CustomUser
 from .models import Reservation
@@ -21,6 +22,16 @@ class ReservationService:
         end: datetime.datetime,
         current_res_id: int | None = None,
     ) -> bool:
+        opening = OpeningHours.objects.filter(
+            club=court.club_id, weekday=get_weekday_name(start)
+        )
+        if not opening.exists():
+            return False
+
+        opening = opening.first()
+        opening_time = opening.opening_hour
+        closing_time = opening.closing_hour
+
         existing_reservations = (
             Reservation.objects.filter(
                 Q(court=court) & (Q(start_datetime__lt=end) & Q(end_datetime__gt=start))
@@ -31,7 +42,12 @@ class ReservationService:
         exceptional_closures = ExceptionalUnavailability.objects.filter(
             court=court, start_datetime__lt=end, end_datetime__gt=start
         )
-        return not existing_reservations and not exceptional_closures
+        return (
+            not existing_reservations
+            and not exceptional_closures
+            and start.time() > opening_time
+            and end.time() < closing_time
+        )
 
     @staticmethod
     def _get_unavailable_times(
