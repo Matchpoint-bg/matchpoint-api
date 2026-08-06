@@ -173,6 +173,8 @@ REST_AUTH = {
     "JWT_AUTH_REFRESH_COOKIE": "_refresh",
     "JWT_AUTH_HTTPONLY": False,
     "REGISTER_SERIALIZER": "users.serializers.UserRegisterSerializer",
+    "LOGIN_SERIALIZER": "users.serializers.EmailLoginSerializer",
+    "USER_DETAILS_SERIALIZER": "users.serializers.UserSerializer",
 }
 
 # django-allauth
