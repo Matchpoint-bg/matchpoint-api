@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    env:
+      SECRET_KEY: ${{secrets.SECRET_KEY}}
+      ALLOWED_HOSTS: ${{secrets.ALLOWED_HOSTS}}
 
     steps:
       - uses: actions/checkout@v4
