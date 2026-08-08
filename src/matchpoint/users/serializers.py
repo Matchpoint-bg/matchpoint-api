@@ -3,6 +3,7 @@ from rest_framework.serializers import ModelSerializer
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from django.contrib.auth import get_user_model
 from .models import CustomUser
+from dj_rest_auth.serializers import LoginSerializer
 
 
 class UserSerializer(ModelSerializer):
@@ -18,6 +19,15 @@ class UserSerializer(ModelSerializer):
 
     def create(self, validated_data):
         return get_user_model().objects.create_user(**validated_data)
+
+
+class EmailLoginSerializer(LoginSerializer):
+    username = None
+    email = serializers.EmailField(required=True)
+
+    def validate(self, attrs):
+        attrs["username"] = attrs.get("email")
+        return super().validate(attrs)
 
 
 class UserListSerializer(ModelSerializer):

@@ -1,8 +1,10 @@
 from typing import Tuple, List
+from django.utils import timezone
 from clubs.services import ClubService
 from common.exceptions import CourtBusyException, IncorrectTimeException
 from common.helpers import get_weekday_name, is_minimum_30_minutes
 from courts.models import Court
+from openinghours.models import OpeningHours
 from pricings.services import PricingService
 from users.models import CustomUser
 from .models import Reservation
@@ -20,6 +22,16 @@ class ReservationService:
         end: datetime.datetime,
         current_res_id: int | None = None,
     ) -> bool:
+        opening = OpeningHours.objects.filter(
+            club=court.club_id, weekday=get_weekday_name(start)
+        )
+        if not opening.exists():
+            return False
+
+        opening = opening.first()
+        opening_time = opening.opening_hour
+        closing_time = opening.closing_hour
+
         existing_reservations = (
             Reservation.objects.filter(
                 Q(court=court) & (Q(start_datetime__lt=end) & Q(end_datetime__gt=start))
@@ -30,26 +42,58 @@ class ReservationService:
         exceptional_closures = ExceptionalUnavailability.objects.filter(
             court=court, start_datetime__lt=end, end_datetime__gt=start
         )
-        return not existing_reservations and not exceptional_closures
+        return (
+            not existing_reservations
+            and not exceptional_closures
+            and start.time() > opening_time
+            and end.time() < closing_time
+        )
 
     @staticmethod
     def _get_unavailable_times(
         court: Court, date: datetime.datetime
     ) -> List[Tuple[datetime.datetime, datetime.datetime]]:
         day, month, year = date.day, date.month, date.year
-        unavailable_times = Reservation.objects.filter(
+        unavailable_times = []
+        reserved_times = Reservation.objects.filter(
             court=court,
-            start_datetime__gt=datetime.datetime(
-                year=year, month=month, day=day, hour=0, minute=0, second=0
+            start_datetime__gt=timezone.make_aware(
+                datetime.datetime(
+                    year=year, month=month, day=day, hour=0, minute=0, second=0
+                )
             ),
-            end_datetime__lt=datetime.datetime(
-                year=year, month=month, day=day, hour=23, minute=59, second=59
+            end_datetime__lt=timezone.make_aware(
+                datetime.datetime(
+                    year=year, month=month, day=day, hour=23, minute=59, second=59
+                )
             ),
         )
-        return [
-            (unavailable_time.start_datetime, unavailable_time.end_datetime)
-            for unavailable_time in unavailable_times
-        ]
+        unavailable_times.extend(
+            [
+                (reservation.start_datetime, reservation.end_datetime)
+                for reservation in reserved_times
+            ]
+        )
+        closing_times = ExceptionalUnavailability.objects.filter(
+            court=court,
+            start_datetime__gt=timezone.make_aware(
+                datetime.datetime(
+                    year=year, month=month, day=day, hour=0, minute=0, second=0
+                )
+            ),
+            end_datetime__lt=timezone.make_aware(
+                datetime.datetime(
+                    year=year, month=month, day=day, hour=23, minute=59, second=59
+                )
+            ),
+        )
+        unavailable_times.extend(
+            [
+                (closing_time.start_datetime, closing_time.end_datetime)
+                for closing_time in closing_times
+            ]
+        )
+        return unavailable_times
 
     @staticmethod
     def _is_slot_available(

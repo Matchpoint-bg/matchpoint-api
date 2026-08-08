@@ -219,13 +219,13 @@ Authentication uses JWT.
 Obtain a token
 
 ```
-POST /api/token/
+POST /api/v1/auth/login/
 ```
 
 Refresh
 
 ```
-POST /api/token/refresh/
+POST /api/v1/auth/refresh/
 ```
 
 Include the token
