@@ -1,5 +1,4 @@
-from django.shortcuts import render
-from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework.request import Request
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
