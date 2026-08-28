@@ -54,4 +54,5 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name="schema"),
         name="redoc",
     ),
+    path("internal/", include("internal.urls")),
 ]

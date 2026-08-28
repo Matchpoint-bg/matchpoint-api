@@ -45,8 +45,8 @@ class ReservationService:
         return (
             not existing_reservations
             and not exceptional_closures
-            and start.time() > opening_time
-            and end.time() < closing_time
+            and start.time() >= opening_time
+            and end.time() <= closing_time
         )
 
     @staticmethod
