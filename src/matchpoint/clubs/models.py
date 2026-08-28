@@ -1,4 +1,7 @@
 from django.db import models
+from cloudinary.models import CloudinaryField
+
+from common.validators import CustomImageFormatValidator
 
 
 class Club(models.Model):
@@ -16,4 +19,4 @@ class Club(models.Model):
     phone = models.CharField(max_length=12)
     email = models.EmailField()
     employees = models.ManyToManyField(to="users.CustomUser", related_name="club")
-    header_image = models.ImageField(null=True)
+    header_image = CloudinaryField(null=True, validators=[CustomImageFormatValidator()])
