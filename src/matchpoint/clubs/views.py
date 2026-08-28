@@ -36,18 +36,26 @@ There are several filters available:
     - latitude & longitude: search by latitude and longitude. In that case, we calculate the distance of the club based to the given values.
       By default, all clubs with a distance greater than 10km will be excluded
 """,
+        responses={200: ClubSerializer(many=True)},
+        tags=["Clubs"],
     ),
     retrieve=extend_schema(
         summary="Retrieve a club",
         description="Retrieve a specific club based on the PK provided in the path.",
+        responses={200: ClubSerializer()},
+        tags=["Clubs"],
     ),
     update=extend_schema(
         summary="Update a club",
         description="Update the details of a club. The action can only be performed by the staff of the club or by an admin.",
+        request=ClubSerializer(),
+        tags=["Clubs"],
     ),
     partial_update=extend_schema(
         summary="Update a club",
         description="Update the details of a club. The action can only be performed by the staff of the club or by an admin.",
+        request=ClubSerializer(),
+        tags=["Clubs"],
     ),
 )
 class ClubViewSet(
@@ -90,6 +98,7 @@ class ClubViewSet(
     @extend_schema(
         summary="Retrieve the courts of a club",
         description="Retrieves all the courts of a specific club which PK is provided in the URL.",
+        tags=["Clubs"],
     )
     @action(methods=["get"], detail=True, url_name="get-club-courts")
     def courts(self, request: Request, pk=None) -> Response:
@@ -101,6 +110,7 @@ class ClubViewSet(
         summary="Retrieve the employees of a club",
         description="Retrieves the employees of a specific club which PK is provided in the URL. The endpoint is available to club employees and admins.",
         responses={201: UserListSerializer(many=True), 403: ErrorSerializer},
+        tags=["Clubs"],
     )
     @action(
         methods=["get"],
@@ -118,12 +128,14 @@ class ClubViewSet(
         summary="Retrieve the opening hours",
         description="Retrieve the opening hours of a specific club",
         responses={200: OpeningHoursSerializer(many=True)},
+        tags=["Clubs"],
     )
     @extend_schema(
         methods=["POST"],
         summary="Create an opening hour",
         description="Create an opening hour for a specific club",
         request=OpeningHoursSerializer,
+        tags=["Clubs"],
     )
     @action(
         methods=["get", "post"],

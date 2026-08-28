@@ -17,6 +17,7 @@ class ClubSerializer(serializers.ModelSerializer):
             "website",
             "phone",
             "email",
+            "header_image",
         ]
         # Add employees to write-only to not be displayed in list
         # extra_kwargs = {"employees": {"write_only": True}}
