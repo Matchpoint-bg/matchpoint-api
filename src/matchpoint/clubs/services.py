@@ -1,7 +1,6 @@
 import datetime
 from django.db.models.query import QuerySet
 from django.utils import timezone
-
 from common.exceptions import NoOpeningTimesFound
 from common.helpers import get_weekday_name, haversine
 from .models import Club
