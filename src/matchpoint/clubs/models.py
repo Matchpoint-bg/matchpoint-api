@@ -1,9 +1,5 @@
-from django.db import models, transaction
-from common.tasks import convert_image_task
+from django.db import models
 from cloudinary.models import CloudinaryField
-from django.core.files.uploadedfile import InMemoryUploadedFile
-from cloudinary import CloudinaryResource
-from common.validators import CustomImageFormatValidator
 
 
 class Club(models.Model):

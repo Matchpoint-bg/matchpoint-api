@@ -15,9 +15,7 @@ def convert_image_task(
         original_file_name = image.name.lower()
 
         if not original_file_name.endswith(".webp"):
-            file_name, content = convert_to_webp(
-                image, instance.pk, app_label, model_name
-            )
+            content = convert_to_webp(image)
             result = cloudinary.uploader.upload(
                 content,
                 folder="club",

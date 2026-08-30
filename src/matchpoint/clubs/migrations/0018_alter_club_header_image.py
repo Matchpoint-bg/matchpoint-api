@@ -5,15 +5,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('clubs', '0017_alter_club_header_image'),
+        ("clubs", "0017_alter_club_header_image"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='club',
-            name='header_image',
-            field=models.ImageField(null=True, upload_to='', validators=[common.validators.CustomImageFormatValidator()]),
+            model_name="club",
+            name="header_image",
+            field=models.ImageField(
+                null=True,
+                upload_to="",
+                validators=[common.validators.CustomImageFormatValidator()],
+            ),
         ),
     ]

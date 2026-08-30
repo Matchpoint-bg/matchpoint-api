@@ -1,7 +1,7 @@
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import QuerySet
-from rest_framework.decorators import action, parser_classes
+from rest_framework.decorators import action
 from rest_framework import status
 from drf_spectacular.utils import (
     extend_schema,

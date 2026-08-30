@@ -5,20 +5,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('clubs', '0019_alter_club_header_image'),
+        ("clubs", "0019_alter_club_header_image"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='club',
-            name='pending_header_image',
-            field=models.ImageField(blank=True, null=True, upload_to='tmp/clubs'),
+            model_name="club",
+            name="pending_header_image",
+            field=models.ImageField(blank=True, null=True, upload_to="tmp/clubs"),
         ),
         migrations.AlterField(
-            model_name='club',
-            name='header_image',
+            model_name="club",
+            name="header_image",
             field=cloudinary.models.CloudinaryField(max_length=255, null=True),
         ),
     ]

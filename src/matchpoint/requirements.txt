@@ -1,9 +1,16 @@
+amqp==5.3.1
 annotated-doc==0.0.4
 asgiref==3.11.1
 attrs==26.1.0
+billiard==4.2.4
+celery==5.6.3
 certifi==2026.7.22
 cffi==2.1.0
 charset-normalizer==3.4.9
+click==8.5.0
+click-didyoumean==0.3.1
+click-plugins==1.1.1.2
+click-repl==0.3.0
 cloudinary==1.46.2
 coverage==7.15.2
 cryptography==50.0.0
@@ -28,6 +35,7 @@ iniconfig==2.3.0
 Jinja2==3.1.6
 jsonschema==4.26.0
 jsonschema-specifications==2025.9.1
+kombu==5.6.2
 markdown-it-py==4.2.0
 MarkupSafe==3.0.3
 mdurl==0.1.2
@@ -39,6 +47,7 @@ plotly==6.8.0
 pluggy==1.6.0
 polars==1.41.2
 polars-runtime-32==1.41.2
+prompt_toolkit==3.0.53
 psycopg2==2.9.12
 pycparser==3.0
 Pygments==2.20.0
@@ -46,8 +55,10 @@ PyJWT==2.13.0
 pytest==9.1.1
 pytest-cov==7.1.0
 pytest-django==4.12.0
+python-dateutil==2.9.0.post0
 python-decouple==3.8
 PyYAML==6.0.3
+redis==8.1.0
 referencing==0.37.0
 requests==2.34.2
 rich==15.0.0
@@ -59,5 +70,9 @@ sqlparse==0.5.5
 typer==0.26.7
 types-PyYAML==6.0.12.20260518
 typing_extensions==4.16.0
+tzdata==2026.3
+tzlocal==5.4.4
 uritemplate==4.2.0
 urllib3==2.7.0
+vine==5.1.0
+wcwidth==0.8.3

@@ -6,15 +6,18 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('clubs', '0016_club_header_image'),
+        ("clubs", "0016_club_header_image"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='club',
-            name='header_image',
-            field=cloudinary.models.CloudinaryField(max_length=255, null=True, validators=[common.validators.CustomImageFormatValidator()]),
+            model_name="club",
+            name="header_image",
+            field=cloudinary.models.CloudinaryField(
+                max_length=255,
+                null=True,
+                validators=[common.validators.CustomImageFormatValidator()],
+            ),
         ),
     ]
