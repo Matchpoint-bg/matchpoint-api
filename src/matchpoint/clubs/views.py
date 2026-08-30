@@ -1,11 +1,12 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import QuerySet
-from rest_framework.decorators import action
+from rest_framework.decorators import action, parser_classes
 from rest_framework import status
 from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
 )
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.request import Request
@@ -17,7 +18,13 @@ from openinghours.models import OpeningHours
 from openinghours.serializers import OpeningHoursSerializer
 from users.serializers import UserListSerializer
 from .models import Club
-from .serializers import ClubSerializer, ExternalClubSerializer
+from .serializers import (
+    ClubImageSerializer,
+    ClubImageUploadSerializer,
+    ClubListSerializer,
+    ClubSerializer,
+    ExternalClubSerializer,
+)
 from courts.serializers import CourtSerializer
 from common.serializers import ErrorSerializer
 
@@ -89,11 +96,11 @@ class ClubViewSet(
 
     def get_serializer_class(self):
         if self.action == "list":
-            return ExternalClubSerializer
+            return ClubListSerializer
         club = self.get_object()
         if self.request.user in club.employees.all() or self.request.user.is_staff:
             return ClubSerializer
-        return ClubSerializer
+        return ExternalClubSerializer
 
     @extend_schema(
         summary="Retrieve the courts of a club",
@@ -163,3 +170,25 @@ class ClubViewSet(
         )
 
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+
+    @extend_schema(
+        methods=["POST"],
+        tags=["Clubs"],
+        request=ClubImageUploadSerializer,
+        responses={200: ClubImageSerializer},
+    )
+    @action(
+        methods=["post"],
+        detail=True,
+        url_name="image",
+        url_path="image",
+        parser_classes=[MultiPartParser, FormParser],
+    )
+    def image(self, request: Request, pk=None) -> Response:
+        club = self.get_object()
+
+        serializer = ClubImageSerializer(club, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(data=serializer.data)

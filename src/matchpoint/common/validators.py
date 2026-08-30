@@ -1,4 +1,5 @@
 from django.utils.deconstruct import deconstructible
+from django.core.exceptions import ValidationError
 from cloudinary import CloudinaryResource
 from django.core.files.uploadedfile import InMemoryUploadedFile
 import datetime
