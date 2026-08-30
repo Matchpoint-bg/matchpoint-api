@@ -28,11 +28,13 @@ from reservations.services import ReservationService
         description="Create a court. Only available to club employees and admins.",
         request=CourtSerializer,
         responses={201: CourtSerializer, 401: ErrorSerializer, 403: ErrorSerializer},
+        tags=["Courts"],
     ),
     retrieve=extend_schema(
         summary="Retrieve a court",
         description="Retrieve the details of a court based on the PK in the URL.",
         responses={200: CourtSerializer, 404: ErrorSerializer},
+        tags=["Courts"],
     ),
     update=extend_schema(
         summary="Update the details of a court",
@@ -44,6 +46,7 @@ from reservations.services import ReservationService
             401: ErrorSerializer,
             403: ErrorSerializer,
         },
+        tags=["Courts"],
     ),
     partial_update=extend_schema(
         summary="Update the details of a court",
@@ -55,10 +58,12 @@ from reservations.services import ReservationService
             401: ErrorSerializer,
             403: ErrorSerializer,
         },
+        tags=["Courts"],
     ),
     destroy=extend_schema(
         summary="Delete a court",
         description="Delete a court which PK is in the URL. Only available to employees and admins",
+        tags=["Courts"],
     ),
 )
 class CourtViewSet(
@@ -92,6 +97,7 @@ class CourtViewSet(
         summary="Retrieve the court's availabilities for a given date",
         parameters=[AvailableCourtQuerySerializer],
         responses={200: CourtOpeningSerializer(many=True)},
+        tags=["Courts"],
     )
     @action(
         methods=["get"],
@@ -112,12 +118,14 @@ class CourtViewSet(
         methods=["GET"],
         summary="Retrieve the court's prices",
         responses={200: CourtsPricesSerializer(many=True)},
+        tags=["Courts"],
     )
     @extend_schema(
         methods=["PUT"],
         summary="Add prices for the court",
         description="Create prices for the selected court. WARNING: the existing prices will be deleted, so make sure you don't append data, but send also the data that is not modified",
         request=CourtsPricesSerializer(many=True),
+        tags=["Courts"],
     )
     @action(methods=["get", "put"], detail=True, url_path="prices", url_name="prices")
     def prices(self, request: Request, pk=None) -> Response:
@@ -147,12 +155,14 @@ class CourtViewSet(
         summary="Create unavailability for a court",
         description="Create and exceptional unavailability for the court",
         request=ExceptionalUnavailabilitySerializer,
+        tags=["Courts"],
     )
     @extend_schema(
         methods=["GET"],
         summary="Get court's unavailabilities",
         description="Retrieves the unavailabilities of a court",
         responses={200: ExceptionalUnavailabilitySerializer},
+        tags=["Courts"],
     )
     @action(
         methods=["get", "put"],
