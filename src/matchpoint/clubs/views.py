@@ -1,3 +1,4 @@
+from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import QuerySet
 from rest_framework.decorators import action, parser_classes
@@ -14,6 +15,7 @@ from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
 from clubs.filters import ClubFilter
 from clubs.permissions import IsClubEmployeeOrAdmin
+from common.tasks import convert_image_task
 from openinghours.models import OpeningHours
 from openinghours.serializers import OpeningHoursSerializer
 from users.serializers import UserListSerializer
@@ -189,6 +191,17 @@ class ClubViewSet(
 
         serializer = ClubImageSerializer(club, data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+
+        club.pending_header_image = serializer.validated_data["header_image"]
+        club.save(update_fields=["pending_header_image"])
+
+        transaction.on_commit(
+            lambda: convert_image_task.delay(
+                club._meta.app_label,
+                club.__class__.__name__,
+                club.pk,
+                "pending_header_image",
+            )
+        )
 
         return Response(data=serializer.data)

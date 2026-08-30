@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from common.tasks import convert_image_task
 from cloudinary.models import CloudinaryField
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -21,26 +21,25 @@ class Club(models.Model):
     phone = models.CharField(max_length=12)
     email = models.EmailField()
     employees = models.ManyToManyField(to="users.CustomUser", related_name="club")
-    header_image = CloudinaryField(null=True, validators=[CustomImageFormatValidator()])
+    header_image = CloudinaryField(null=True)
+    pending_header_image = models.ImageField(
+        null=True, blank=True, upload_to="tmp/clubs/"
+    )
 
-    def save(self, *args, **kwargs):
-        if self.header_image:
-            if isinstance(self, CloudinaryResource):
-                if self.header_image.format != "webp":
-                    convert_image_task.delay(
-                        self._meta.app_label,
-                        self.__class__.__name__,
-                        self.pk,
-                        "image",
-                    )
-            elif isinstance(self, InMemoryUploadedFile):
-                print("Trigger here")
-                if not self.name.endswith(".webp"):
-                    convert_image_task.delay(
-                        self._meta.app_label,
-                        self.__class__.__name__,
-                        self.pk,
-                        "image",
-                    )
-
-        return super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #
+    #     should_convert = isinstance(
+    #         self.header_image, InMemoryUploadedFile
+    #     ) and not self.header_image.name.lower().endswith(".webp")
+    #
+    #     super().save(*args, **kwargs)
+    #
+    #     if should_convert:
+    #         transaction.on_commit(
+    #             lambda: convert_image_task.delay(
+    #                 self._meta.app_label,
+    #                 self.__class__.__name__,
+    #                 self.pk,
+    #                 "header_image",
+    #             )
+    #         )
