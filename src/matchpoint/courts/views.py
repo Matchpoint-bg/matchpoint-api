@@ -1,4 +1,5 @@
 from drf_spectacular.utils import extend_schema, extend_schema_view
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import mixins
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -10,6 +11,7 @@ from clubs.permissions import IsClubEmployeeOrAdmin
 from common.serializers import ErrorSerializer
 from courts.serializers import (
     AvailableCourtQuerySerializer,
+    CourtImageSerailizer,
     CourtOpeningSerializer,
     CourtSerializer,
 )
@@ -18,7 +20,7 @@ from exceptionalunavailability.models import ExceptionalUnavailability
 from exceptionalunavailability.serializers import ExceptionalUnavailabilitySerializer
 from pricings.models import Prices
 from pricings.serializers import CourtsPricesSerializer
-from .models import Court
+from .models import Court, CourtImages
 from reservations.services import ReservationService
 
 
@@ -192,3 +194,45 @@ class CourtViewSet(
             end_datetime=serializer.validated_data["end_datetime"],
         )
         return Response(status=status.HTTP_201_CREATED)
+
+    @extend_schema(
+        methods=["POST"],
+        summary="Add images to the court",
+        description="Add images to the current court",
+        tags=["Courts"],
+        request=CourtImageSerailizer,
+    )
+    @action(
+        methods=["post"],
+        detail=True,
+        url_path="add-image",
+        url_name="images",
+        parser_classes=[MultiPartParser, FormParser],
+    )
+    def post_images(self, request: Request, pk=None) -> Response:
+        court = self.get_object()
+        serializer = CourtImageSerailizer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        CourtImages.objects.create(
+            court_id=court, image=serializer.validated_data["image"]
+        )
+
+        return Response(
+            status=status.HTTP_201_CREATED, data="Image uploaded successfully"
+        )
+
+    @extend_schema(
+        methods=["GET"],
+        summary="Get court images",
+        description="Get the images of the current court",
+        tags=["Courts"],
+    )
+    @action(methods=["get"], detail=True, url_path="images", url_name="images")
+    def get_images(self, request: Request, pk=None) -> Response:
+        court = self.get_object()
+        images = court.images.all()
+        serializer = CourtImageSerailizer(data=images, many=True)
+        serializer.is_valid(raise_exception=True)
+
+        return Response(data=serializer.data)

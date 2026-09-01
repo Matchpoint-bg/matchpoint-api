@@ -1,4 +1,3 @@
-from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import QuerySet
 from rest_framework.decorators import action
@@ -15,14 +14,12 @@ from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
 from clubs.filters import ClubFilter
 from clubs.permissions import IsClubEmployeeOrAdmin
-from common.tasks import convert_image_task
 from openinghours.models import OpeningHours
 from openinghours.serializers import OpeningHoursSerializer
 from users.serializers import UserListSerializer
 from .models import Club
 from .serializers import (
     ClubImageSerializer,
-    ClubImageUploadSerializer,
     ClubListSerializer,
     ClubSerializer,
     ExternalClubSerializer,
@@ -92,7 +89,7 @@ class ClubViewSet(
         return queryset.distinct()
 
     def get_permissions(self):
-        if self.action in ("update", "partial_update", "employees"):
+        if self.action in ("update", "partial_update", "employees", "image"):
             return [IsAuthenticated(), IsClubEmployeeOrAdmin()]
         return []
 
@@ -176,7 +173,7 @@ class ClubViewSet(
     @extend_schema(
         methods=["POST"],
         tags=["Clubs"],
-        request=ClubImageUploadSerializer,
+        request=ClubImageSerializer,
         responses={200: ClubImageSerializer},
     )
     @action(
@@ -192,16 +189,9 @@ class ClubViewSet(
         serializer = ClubImageSerializer(club, data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        club.pending_header_image = serializer.validated_data["header_image"]
-        club.save(update_fields=["pending_header_image"])
+        club.header_image = serializer.validated_data["header_image"]
+        club.save(update_fields=["header_image"])
 
-        transaction.on_commit(
-            lambda: convert_image_task.delay(
-                club._meta.app_label,
-                club.__class__.__name__,
-                club.pk,
-                "pending_header_image",
-            )
+        return Response(
+            status=status.HTTP_202_ACCEPTED, data="Image uploaded successfully"
         )
-
-        return Response(data=serializer.data)

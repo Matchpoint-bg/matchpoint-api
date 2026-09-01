@@ -42,10 +42,6 @@ class ClubListSerializer(serializers.ModelSerializer):
         ]
 
 
-class ClubImageUploadSerializer(serializers.Serializer):
-    header_image = serializers.ImageField()
-
-
 class ClubImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Club

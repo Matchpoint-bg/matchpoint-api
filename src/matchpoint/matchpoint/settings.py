@@ -97,6 +97,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "matchpoint.wsgi.application"
 
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"  # or any media storage you'd like to use.
+    },
+    "staticfiles": {  # this is the storage for static files
+        "BACKEND": "django.core.files.storage.FileSystemStorage"  # this is django's default storage for static files, for using cloudinry as static files storage see usage with static files section
+    },
+}
+
 REST_FRAMEWORK = {
     # YOUR SETTINGS
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
