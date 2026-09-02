@@ -1,4 +1,5 @@
 from drf_spectacular.utils import extend_schema, extend_schema_view
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import mixins
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -10,6 +11,7 @@ from clubs.permissions import IsClubEmployeeOrAdmin
 from common.serializers import ErrorSerializer
 from courts.serializers import (
     AvailableCourtQuerySerializer,
+    CourtImageSerailizer,
     CourtOpeningSerializer,
     CourtSerializer,
 )
@@ -18,7 +20,7 @@ from exceptionalunavailability.models import ExceptionalUnavailability
 from exceptionalunavailability.serializers import ExceptionalUnavailabilitySerializer
 from pricings.models import Prices
 from pricings.serializers import CourtsPricesSerializer
-from .models import Court
+from .models import Court, CourtImages
 from reservations.services import ReservationService
 
 
@@ -28,11 +30,13 @@ from reservations.services import ReservationService
         description="Create a court. Only available to club employees and admins.",
         request=CourtSerializer,
         responses={201: CourtSerializer, 401: ErrorSerializer, 403: ErrorSerializer},
+        tags=["Courts"],
     ),
     retrieve=extend_schema(
         summary="Retrieve a court",
         description="Retrieve the details of a court based on the PK in the URL.",
         responses={200: CourtSerializer, 404: ErrorSerializer},
+        tags=["Courts"],
     ),
     update=extend_schema(
         summary="Update the details of a court",
@@ -44,6 +48,7 @@ from reservations.services import ReservationService
             401: ErrorSerializer,
             403: ErrorSerializer,
         },
+        tags=["Courts"],
     ),
     partial_update=extend_schema(
         summary="Update the details of a court",
@@ -55,10 +60,12 @@ from reservations.services import ReservationService
             401: ErrorSerializer,
             403: ErrorSerializer,
         },
+        tags=["Courts"],
     ),
     destroy=extend_schema(
         summary="Delete a court",
         description="Delete a court which PK is in the URL. Only available to employees and admins",
+        tags=["Courts"],
     ),
 )
 class CourtViewSet(
@@ -92,6 +99,7 @@ class CourtViewSet(
         summary="Retrieve the court's availabilities for a given date",
         parameters=[AvailableCourtQuerySerializer],
         responses={200: CourtOpeningSerializer(many=True)},
+        tags=["Courts"],
     )
     @action(
         methods=["get"],
@@ -112,12 +120,14 @@ class CourtViewSet(
         methods=["GET"],
         summary="Retrieve the court's prices",
         responses={200: CourtsPricesSerializer(many=True)},
+        tags=["Courts"],
     )
     @extend_schema(
         methods=["PUT"],
         summary="Add prices for the court",
         description="Create prices for the selected court. WARNING: the existing prices will be deleted, so make sure you don't append data, but send also the data that is not modified",
         request=CourtsPricesSerializer(many=True),
+        tags=["Courts"],
     )
     @action(methods=["get", "put"], detail=True, url_path="prices", url_name="prices")
     def prices(self, request: Request, pk=None) -> Response:
@@ -147,12 +157,14 @@ class CourtViewSet(
         summary="Create unavailability for a court",
         description="Create and exceptional unavailability for the court",
         request=ExceptionalUnavailabilitySerializer,
+        tags=["Courts"],
     )
     @extend_schema(
         methods=["GET"],
         summary="Get court's unavailabilities",
         description="Retrieves the unavailabilities of a court",
         responses={200: ExceptionalUnavailabilitySerializer},
+        tags=["Courts"],
     )
     @action(
         methods=["get", "put"],
@@ -182,3 +194,45 @@ class CourtViewSet(
             end_datetime=serializer.validated_data["end_datetime"],
         )
         return Response(status=status.HTTP_201_CREATED)
+
+    @extend_schema(
+        methods=["POST"],
+        summary="Add images to the court",
+        description="Add images to the current court",
+        tags=["Courts"],
+        request=CourtImageSerailizer,
+    )
+    @action(
+        methods=["post"],
+        detail=True,
+        url_path="add-image",
+        url_name="images",
+        parser_classes=[MultiPartParser, FormParser],
+    )
+    def post_images(self, request: Request, pk=None) -> Response:
+        court = self.get_object()
+        serializer = CourtImageSerailizer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        CourtImages.objects.create(
+            court_id=court, image=serializer.validated_data["image"]
+        )
+
+        return Response(
+            status=status.HTTP_201_CREATED, data="Image uploaded successfully"
+        )
+
+    @extend_schema(
+        methods=["GET"],
+        summary="Get court images",
+        description="Get the images of the current court",
+        tags=["Courts"],
+    )
+    @action(methods=["get"], detail=True, url_path="images", url_name="images")
+    def get_images(self, request: Request, pk=None) -> Response:
+        court = self.get_object()
+        images = court.images.all()
+        serializer = CourtImageSerailizer(data=images, many=True)
+        serializer.is_valid(raise_exception=True)
+
+        return Response(data=serializer.data)

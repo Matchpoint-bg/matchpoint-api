@@ -16,3 +16,22 @@ class Club(models.Model):
     phone = models.CharField(max_length=12)
     email = models.EmailField()
     employees = models.ManyToManyField(to="users.CustomUser", related_name="club")
+    header_image = models.ImageField(null=True, upload_to="clubs/")
+
+    # def save(self, *args, **kwargs):
+    #
+    #     should_convert = isinstance(
+    #         self.header_image, InMemoryUploadedFile
+    #     ) and not self.header_image.name.lower().endswith(".webp")
+    #
+    #     super().save(*args, **kwargs)
+    #
+    #     if should_convert:
+    #         transaction.on_commit(
+    #             lambda: convert_image_task.delay(
+    #                 self._meta.app_label,
+    #                 self.__class__.__name__,
+    #                 self.pk,
+    #                 "header_image",
+    #             )
+    #         )

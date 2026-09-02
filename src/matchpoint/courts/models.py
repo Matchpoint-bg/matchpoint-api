@@ -18,3 +18,10 @@ class Court(models.Model):
     surface_type = models.CharField(choices=CourtType.choices)
     is_indoor = models.BooleanField()
     is_lit = models.BooleanField()
+
+
+class CourtImages(models.Model):
+    court_id = models.ForeignKey(
+        to=Court, on_delete=models.CASCADE, related_name="images"
+    )
+    image = models.ImageField(upload_to="courts")

@@ -2,11 +2,15 @@ from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from django.contrib.auth import get_user_model
+
+from profiles.serializers import ProfileSerializer
 from .models import CustomUser
 from dj_rest_auth.serializers import LoginSerializer
 
 
 class UserSerializer(ModelSerializer):
+    profile = ProfileSerializer()
+
     class Meta:
         model = CustomUser
         fields = [
@@ -16,6 +20,7 @@ class UserSerializer(ModelSerializer):
             "phone_number",
             "preferred_language",
             "is_staff",
+            "profile",
         ]
 
     def create(self, validated_data):

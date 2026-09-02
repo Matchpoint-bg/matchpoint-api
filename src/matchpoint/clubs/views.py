@@ -6,6 +6,7 @@ from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
 )
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.request import Request
@@ -17,7 +18,12 @@ from openinghours.models import OpeningHours
 from openinghours.serializers import OpeningHoursSerializer
 from users.serializers import UserListSerializer
 from .models import Club
-from .serializers import ClubSerializer, ExternalClubSerializer
+from .serializers import (
+    ClubImageSerializer,
+    ClubListSerializer,
+    ClubSerializer,
+    ExternalClubSerializer,
+)
 from courts.serializers import CourtSerializer
 from common.serializers import ErrorSerializer
 
@@ -36,18 +42,26 @@ There are several filters available:
     - latitude & longitude: search by latitude and longitude. In that case, we calculate the distance of the club based to the given values.
       By default, all clubs with a distance greater than 10km will be excluded
 """,
+        responses={200: ClubSerializer(many=True)},
+        tags=["Clubs"],
     ),
     retrieve=extend_schema(
         summary="Retrieve a club",
         description="Retrieve a specific club based on the PK provided in the path.",
+        responses={200: ClubSerializer()},
+        tags=["Clubs"],
     ),
     update=extend_schema(
         summary="Update a club",
         description="Update the details of a club. The action can only be performed by the staff of the club or by an admin.",
+        request=ClubSerializer(),
+        tags=["Clubs"],
     ),
     partial_update=extend_schema(
         summary="Update a club",
         description="Update the details of a club. The action can only be performed by the staff of the club or by an admin.",
+        request=ClubSerializer(),
+        tags=["Clubs"],
     ),
 )
 class ClubViewSet(
@@ -75,21 +89,22 @@ class ClubViewSet(
         return queryset.distinct()
 
     def get_permissions(self):
-        if self.action in ("update", "partial_update", "employees"):
+        if self.action in ("update", "partial_update", "employees", "image"):
             return [IsAuthenticated(), IsClubEmployeeOrAdmin()]
         return []
 
     def get_serializer_class(self):
         if self.action == "list":
-            return ExternalClubSerializer
+            return ClubListSerializer
         club = self.get_object()
         if self.request.user in club.employees.all() or self.request.user.is_staff:
             return ClubSerializer
-        return ClubSerializer
+        return ExternalClubSerializer
 
     @extend_schema(
         summary="Retrieve the courts of a club",
         description="Retrieves all the courts of a specific club which PK is provided in the URL.",
+        tags=["Clubs"],
     )
     @action(methods=["get"], detail=True, url_name="get-club-courts")
     def courts(self, request: Request, pk=None) -> Response:
@@ -101,6 +116,7 @@ class ClubViewSet(
         summary="Retrieve the employees of a club",
         description="Retrieves the employees of a specific club which PK is provided in the URL. The endpoint is available to club employees and admins.",
         responses={201: UserListSerializer(many=True), 403: ErrorSerializer},
+        tags=["Clubs"],
     )
     @action(
         methods=["get"],
@@ -118,12 +134,14 @@ class ClubViewSet(
         summary="Retrieve the opening hours",
         description="Retrieve the opening hours of a specific club",
         responses={200: OpeningHoursSerializer(many=True)},
+        tags=["Clubs"],
     )
     @extend_schema(
         methods=["POST"],
         summary="Create an opening hour",
         description="Create an opening hour for a specific club",
         request=OpeningHoursSerializer,
+        tags=["Clubs"],
     )
     @action(
         methods=["get", "post"],
@@ -151,3 +169,29 @@ class ClubViewSet(
         )
 
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+
+    @extend_schema(
+        methods=["POST"],
+        tags=["Clubs"],
+        request=ClubImageSerializer,
+        responses={200: ClubImageSerializer},
+    )
+    @action(
+        methods=["post"],
+        detail=True,
+        url_name="image",
+        url_path="image",
+        parser_classes=[MultiPartParser, FormParser],
+    )
+    def image(self, request: Request, pk=None) -> Response:
+        club = self.get_object()
+
+        serializer = ClubImageSerializer(club, data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        club.header_image = serializer.validated_data["header_image"]
+        club.save(update_fields=["header_image"])
+
+        return Response(
+            status=status.HTTP_202_ACCEPTED, data="Image uploaded successfully"
+        )
