@@ -1,5 +1,6 @@
 from urllib.parse import urljoin
 from django.urls import reverse
+from drf_spectacular.utils import extend_schema, extend_schema_view
 import requests
 from rest_framework import viewsets
 from rest_framework.exceptions import status
@@ -17,6 +18,34 @@ from .models import CustomUser
 from .serializers import UserSerializer, UserListSerializer
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Retrieve users",
+        description="Retrieve a list of users",
+        tags=["Users"],
+        responses={200: UserListSerializer(many=True)},
+    ),
+    retrieve=extend_schema(
+        summary="Retrieve a users",
+        description="Retrieve a specific user, based on the ID provided",
+        responses={200: UserSerializer},
+        tags=["Users"],
+    ),
+    update=extend_schema(
+        summary="Update a user",
+        description="Update a specific user, based on the ID provided",
+        responses={200: UserSerializer},
+        tags=["Users"],
+    ),
+    partial_update=extend_schema(
+        summary="Update a user (partial update)",
+        description="Update a specific user (partial update), based on the ID provided",
+        responses={200: UserSerializer},
+        tags=["Users"],
+    ),
+    create=extend_schema(tags=["Users"]),
+    destroy=extend_schema(tags=["Users"]),
+)
 class UserViewset(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
