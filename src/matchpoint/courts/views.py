@@ -85,6 +85,7 @@ class CourtViewSet(
         "prices": [IsAuthenticated, IsClubEmployeeOrAdmin],
         "employees": [IsAuthenticated, IsClubEmployeeOrAdmin],
         "unavailabilities": [IsAuthenticated, IsClubEmployeeOrAdmin],
+        "post_images": [IsAuthenticated, IsClubEmployeeOrAdmin],
     }
 
     permission_classes = [AllowAny]

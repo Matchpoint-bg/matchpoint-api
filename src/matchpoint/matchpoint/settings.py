@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 from decouple import config
-import os
 import cloudinary
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -51,6 +50,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "cloudinary_storage",
+    "cloudinary",
     "rest_framework",
     "rest_framework.authtoken",
     "dj_rest_auth",
@@ -97,14 +98,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "matchpoint.wsgi.application"
 
-STORAGES = {
-    "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"  # or any media storage you'd like to use.
-    },
-    "staticfiles": {  # this is the storage for static files
-        "BACKEND": "django.core.files.storage.FileSystemStorage"  # this is django's default storage for static files, for using cloudinry as static files storage see usage with static files section
-    },
-}
 
 REST_FRAMEWORK = {
     # YOUR SETTINGS
@@ -173,10 +166,20 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = "static/"
-MEDIA_URL = "media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"  # or any media storage you'd like to use.
+    },
+    "staticfiles": {  # this is the storage for static files
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"  # this is django's default storage for static files, for using cloudinry as static files storage see usage with static files section
+    },
+}
 # rest_framework_simplejwt
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
