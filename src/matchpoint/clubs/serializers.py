@@ -23,6 +23,31 @@ class ClubSerializer(serializers.ModelSerializer):
         #
 
 
+class ClubListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Club
+        fields = [
+            "id",
+            "name",
+            "city",
+            "address",
+            "post_code",
+            "latitude",
+            "longitude",
+            "description",
+            "website",
+            "phone",
+            "email",
+            "header_image",
+        ]
+
+
+class ClubImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Club
+        fields = ["header_image"]
+
+
 class ExternalClubSerializer(serializers.ModelSerializer):
     class Meta:
         model = Club
