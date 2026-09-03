@@ -7,4 +7,3 @@ router = DefaultRouter()
 router.register(r"avatar", AvatarViewset)
 
 urlpatterns = [path("<int:pk>/", include(router.urls))]
-

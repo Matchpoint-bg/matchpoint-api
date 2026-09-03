@@ -1,5 +1,4 @@
 from drf_spectacular.utils import extend_schema
-from rest_framework.decorators import parser_classes
 from rest_framework.mixins import CreateModelMixin
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
