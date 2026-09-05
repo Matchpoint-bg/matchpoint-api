@@ -25,7 +25,6 @@ djangorestframework==3.17.1
 djangorestframework-stubs==3.17.0
 djangorestframework_simplejwt==5.5.1
 drf-spectacular==0.30.0
-duckdb==1.5.3
 factory_boy==3.3.3
 Faker==40.36.0
 idna==3.18
@@ -43,8 +42,6 @@ packaging==26.2
 pillow==12.3.0
 plotly==6.8.0
 pluggy==1.6.0
-polars==1.41.2
-polars-runtime-32==1.41.2
 prompt_toolkit==3.0.53
 psycopg2==2.9.12
 pycparser==3.0

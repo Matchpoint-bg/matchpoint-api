@@ -1,4 +1,5 @@
 from django_filters.rest_framework.backends import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import permissions, viewsets
 from rest_framework.status import HTTP_201_CREATED
 from common.exceptions import CourtBusyException
@@ -15,6 +16,46 @@ from typing import Any
 from .services import ReservationService
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="List reservations",
+        description="List the reservations of the current user, or all users if current user is part of staff",
+        responses={200: ReservationSerializer(many=True)},
+        tags=["Reservations"],
+    ),
+    retrieve=extend_schema(
+        summary="Get reservation",
+        description="Retrieve a specific reservation by its ID",
+        responses={200: ReservationSerializer},
+        tags=["Reservations"],
+    ),
+    create=extend_schema(
+        summary="Create reservation",
+        description="Create a reservation",
+        request=ReservationCreationSerializer,
+        responses={200: ReservationSerializer},
+        tags=["Reservations"],
+    ),
+    update=extend_schema(
+        summary="Update a reservation",
+        description="Update a reservation",
+        request=ReservationCreationSerializer,
+        responses={200: ReservationSerializer},
+        tags=["Reservations"],
+    ),
+    partial_update=extend_schema(
+        summary="Update a reservation (partial update)",
+        description="Update a reservation",
+        request=ReservationCreationSerializer,
+        responses={200: ReservationSerializer},
+        tags=["Reservations"],
+    ),
+    destroy=extend_schema(
+        summary="Delete a reservation",
+        description="Delete a reservation",
+        tags=["Reservations"],
+    ),
+)
 class ReservationViewset(viewsets.ModelViewSet):
     queryset = Reservation.objects.all()
     permission_classes = [permissions.IsAuthenticated, IsStaffOrReservationOwner]
